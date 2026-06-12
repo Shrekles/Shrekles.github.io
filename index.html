@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rex Ouyang — Home</title>
+  <meta name="description" content="Personal website of Rex Ouyang — machine learning, probability theory, optimization, and information theory." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <script src="assets/main.js" defer></script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>∇</text></svg>" />
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="logo" href="index.html">rex<span class="accent">.</span>dev</a>
+      <div class="nav-links">
+        <a href="index.html" class="active">Home</a>
+        <a href="projects.html">Selected Projects</a>
+        <a href="resume.html">Resume</a>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀</button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ============ HERO ============ -->
+    <section class="hero container" style="padding-bottom: 30px;">
+      <div class="hero-kicker">hello world, I'm</div>
+      <h1>Rex Ouyang<span class="cursor-blink"></span></h1>
+      <p class="sub">
+        I like <strong><span id="typed" data-phrases='["machine learning","probability theory","optimization","information theory"]'></span></strong>
+      </p>
+    </section>
+
+    <!-- ============ ABOUT ME ============ -->
+    <section class="container reveal" style="padding-top: 30px;">
+      <div class="about-grid">
+        <aside class="profile-card">
+          <!-- Drop your photo at assets/profile.jpg — until then the initials show -->
+          <div class="avatar">
+            <span class="initials">RO</span>
+            <img src="assets/profile.jpg" alt="Rex Ouyang" onerror="this.remove()" />
+          </div>
+          <h2>Rex Ouyang</h2>
+          <div class="role">Math &amp; CS Student at UC Berkeley</div>
+          <ul class="profile-links">
+            <li><span><span class="icon">📍</span>Berkeley, CA</span></li>
+            <li><a href="mailto:rexhouyang@berkeley.edu"><span class="icon">✉️</span>Email</a></li>
+            <li><a href="https://www.linkedin.com/in/rex-ouyang/"><span class="icon">💼</span>LinkedIn</a></li>
+          </ul>
+        </aside>
+
+        <div class="about-text">
+          <h2>About me</h2>
+          <p>
+            I'm a student at <a href="https://www.berkeley.edu">UC Berkeley</a> studying
+            Math and CS. My current interests are at the intersection of machine learning,
+            probability theory, optimization, and information theory. I love playing
+            around with theory and methods.
+          </p>
+          <p>
+            At Berkeley, I'm working as a researcher in
+            <a href="https://people.eecs.berkeley.edu/~courtade/">Thomas Courtade</a>'s lab,
+            currently studying geometricity conditions in entropy-transport sharp bounds.
+          </p>
+          <p>
+            Outside of academics, I love playing games — current ones I'm playing are
+            Minecraft, Geometry Dash, and Clash Royale.
+          </p>
+          <div class="hero-cta" style="margin-top: 26px;">
+            <a class="btn btn-primary" href="projects.html">Selected projects →</a>
+            <a class="btn btn-ghost" href="resume.html">Resume / CV</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p>© 2026 Rex Ouyang · built with plain HTML/CSS, hosted on GitHub Pages</p>
+      <div class="socials">
+        <a href="https://www.linkedin.com/in/rex-ouyang/">linkedin</a>
+        <a href="mailto:rexhouyang@berkeley.edu">email</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rex Ouyang — Resume</title>
+  <meta name="description" content="Resume of Rex Ouyang — Math & CS at UC Berkeley." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <script src="assets/main.js" defer></script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>∇</text></svg>" />
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="logo" href="index.html">rex<span class="accent">.</span>dev</a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="projects.html">Selected Projects</a>
+        <a href="resume.html" class="active">Resume</a>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀</button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="container" style="padding-top: 80px;">
+      <div class="section-header reveal">
+        <div class="eyebrow">// resume</div>
+        <h2>Resume</h2>
+        <p>The highlights below — or grab the PDF for the full version.</p>
+      </div>
+
+      <div class="resume-actions reveal">
+        <a class="btn btn-primary" href="assets/resume.pdf" download>↓ Download PDF</a>
+        <a class="btn btn-ghost" href="assets/resume.pdf" target="_blank" rel="noopener">Open in new tab ↗</a>
+      </div>
+
+      <!-- ============ EDUCATION ============ -->
+      <div class="resume-section reveal">
+        <h3>Education</h3>
+        <div class="resume-item">
+          <div class="when">Expected May 2028</div>
+          <div class="what">
+            <h4>B.A. Computer Science, B.A. Applied Mathematics</h4>
+            <div class="where">University of California, Berkeley — EECS Honors Program</div>
+            <ul>
+              <li>Coursework: Nonstochastic Statistics*, Stochastic Estimation and Control*,
+                  Applications of Stochastic Process Theory*, Random Processes in Systems*,
+                  Convex Optimization*, Topology and Analysis*, Deep Learning
+                  <em>(* graduate coursework)</em></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ EXPERIENCE ============ -->
+      <div class="resume-section reveal">
+        <h3>Experience</h3>
+        <div class="resume-item">
+          <div class="when">May 2026 — present</div>
+          <div class="what">
+            <h4>Undergraduate Student Researcher</h4>
+            <div class="where">UC Berkeley EECS — advised by Prof. Thomas Courtade</div>
+            <ul>
+              <li>Researching sharp entropy bounds in Euclidean spaces and geometricity conditions.</li>
+              <li>Studying information-theoretic functional inequalities using convex analysis and stochastic calculus.</li>
+              <li>Analyzing reductions from entropy optimization over probability measures to finite-dimensional covariances.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="resume-item">
+          <div class="when">Incoming Aug 2026</div>
+          <div class="what">
+            <h4>Undergraduate Course Staff — EECS 126</h4>
+            <div class="where">UC Berkeley EECS</div>
+            <ul>
+              <li>1 of 3 selected tutors for EECS 126: Probability and Random Processes, Fall 2026.</li>
+              <li>Will lead office hours, answer student questions, grade assignments and exams, and support administration.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="resume-item">
+          <div class="when">Sep 2024 — present</div>
+          <div class="what">
+            <h4>Simulations Developer</h4>
+            <div class="where">Formula Electric at Berkeley</div>
+            <ul>
+              <li>Modeling battery discharge dynamics under varying load conditions within a multidisciplinary
+                  engineering team, supporting performance analysis and system-level decision-making.</li>
+              <li>Designed a mathematical framework to estimate battery state under changing power demands
+                  using dynamical systems modeling and numerical simulation.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ PROJECTS ============ -->
+      <div class="resume-section reveal">
+        <h3>Projects</h3>
+        <div class="resume-item">
+          <div class="when">May 2026 — present</div>
+          <div class="what">
+            <h4>An Exposition of the Sharp Symmetrized Talagrand Inequality</h4>
+            <div class="where">Research project</div>
+            <ul>
+              <li>Studying a recent result on optimal transport bounds measuring distance to centered distributions.</li>
+              <li>Provided alternate proofs to key results using convex analysis and stochastic calculus.</li>
+              <li>Building Monte Carlo simulations on probability distributions to test and visualize the inequality numerically.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="resume-item">
+          <div class="when">Nov — Dec 2025</div>
+          <div class="what">
+            <h4>Sparse Attack Detection in Power Networks via Lasso Optimization</h4>
+            <ul>
+              <li>Formulated sensor attack detection as a sparse recovery problem using L1-regularized regression.</li>
+              <li>Evaluated sparse recovery under noisy and adversarial conditions by simulating corrupted
+                  measurement environments, enabling robust inference of hidden attack locations.</li>
+              <li>Achieved a 95% success rate in identifying all attack locations across repeated trials on simulated data.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="resume-item">
+          <div class="when">Jun — Jul 2025</div>
+          <div class="what">
+            <h4>RISC-V Digit Classification</h4>
+            <ul>
+              <li>Built a neural network in RISC-V assembly to classify handwritten MNIST digits using
+                  matrix multiplication and file I/O routines.</li>
+              <li>Implemented low-level numerical computation and data processing pipelines directly in assembly.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="resume-item">
+          <div class="when">Mar — Apr 2025</div>
+          <div class="what">
+            <h4>Entropy-Based Optimization for Wordle Solving</h4>
+            <ul>
+              <li>Designed and evaluated an entropy-based search algorithm for the NYT Wordle puzzle to explore
+                  adaptive decision strategies in a constrained, information-limited environment.</li>
+              <li>Modeled solving as sequential decision-making under uncertainty, using probabilistic belief
+                  updates and posterior filtering to adaptively reduce the search space after each guess.</li>
+              <li>Achieved an average solve rate of 3.283 guesses per game, outperforming the human average of 3.92.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ SKILLS ============ -->
+      <div class="resume-section reveal">
+        <h3>Technical Skills</h3>
+        <div class="skills-grid">
+          <div class="skill-group">
+            <div class="label">Quantitative Methods</div>
+            <div class="tags">
+              <span class="tag">Probability</span><span class="tag">Statistics</span>
+              <span class="tag">Stochastic Processes</span><span class="tag">Stochastic Analysis</span>
+              <span class="tag">Convex Optimization</span><span class="tag">Sparse Recovery</span>
+              <span class="tag">Information Theory</span><span class="tag">Dynamical Systems</span>
+              <span class="tag">Machine Learning</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <div class="label">Programming / Systems</div>
+            <div class="tags">
+              <span class="tag">Python</span><span class="tag">Java</span>
+              <span class="tag">C/C++</span><span class="tag">SQL</span><span class="tag">Go</span>
+              <span class="tag">RISC-V Assembly</span><span class="tag">x86 Assembly</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <div class="label">Scientific Computing / Tools</div>
+            <div class="tags">
+              <span class="tag">NumPy</span><span class="tag">SciPy</span>
+              <span class="tag">CVXPY</span><span class="tag">Matplotlib</span>
+              <span class="tag">Git</span><span class="tag">GDB</span>
+              <span class="tag">Valgrind</span><span class="tag">Logisim</span><span class="tag">Unity</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p>© 2026 Rex Ouyang · built with plain HTML/CSS, hosted on GitHub Pages</p>
+      <div class="socials">
+        <a href="https://www.linkedin.com/in/rex-ouyang/">linkedin</a>
+        <a href="mailto:rexhouyang@berkeley.edu">email</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
