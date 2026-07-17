@@ -86,15 +86,16 @@
           </div>
         </div>
         <div class="resume-item">
-          <div class="when">Sep 2024 — present</div>
+          <div class="when">Sep 2024 — May 2026</div>
           <div class="what">
             <h4>Simulations Developer</h4>
             <div class="where">Formula Electric at Berkeley</div>
             <ul>
-              <li>Modeling battery discharge dynamics under varying load conditions within a multidisciplinary
-                  engineering team, supporting performance analysis and system-level decision-making.</li>
-              <li>Designed a mathematical framework to estimate battery state under changing power demands
-                  using dynamical systems modeling and numerical simulation.</li>
+              <li>Analyzed measured current-draw time-series to model battery discharge dynamics under
+                  varying load, deriving a reduced formulation that estimated battery state faster than
+                  the team's existing numerical simulation.</li>
+              <li>Collaborated within a multidisciplinary engineering team, contributing the model to the
+                  shared simulation codebase for integration.</li>
             </ul>
           </div>
         </div>
@@ -120,10 +121,12 @@
           <div class="what">
             <h4>Sparse Attack Detection in Power Networks via Lasso Optimization</h4>
             <ul>
-              <li>Formulated sensor attack detection as a sparse recovery problem using L1-regularized regression.</li>
-              <li>Evaluated sparse recovery under noisy and adversarial conditions by simulating corrupted
-                  measurement environments, enabling robust inference of hidden attack locations.</li>
-              <li>Achieved a 95% success rate in identifying all attack locations across repeated trials on simulated data.</li>
+              <li>Formulated sensor attack detection as a sparse recovery problem: L1-regularized regression
+                  over measurements corrupted by Gaussian noise and sparse adversarial injections.</li>
+              <li>Built a Monte Carlo experiment generating corrupted measurement datasets across 100
+                  randomized trials.</li>
+              <li>Achieved exact support recovery — every attacked node and line, with zero false positives —
+                  in 95% of trials.</li>
             </ul>
           </div>
         </div>
@@ -139,15 +142,20 @@
           </div>
         </div>
         <div class="resume-item">
-          <div class="when">Mar — Apr 2025</div>
+          <div class="when">Mar 2025 — Jul 2026</div>
           <div class="what">
-            <h4>Entropy-Based Optimization for Wordle Solving</h4>
+            <h4>Vectorized Entropy-Based Wordle Solver</h4>
             <ul>
-              <li>Designed and evaluated an entropy-based search algorithm for the NYT Wordle puzzle to explore
-                  adaptive decision strategies in a constrained, information-limited environment.</li>
-              <li>Modeled solving as sequential decision-making under uncertainty, using probabilistic belief
-                  updates and posterior filtering to adaptively reduce the search space after each guess.</li>
-              <li>Achieved an average solve rate of 3.283 guesses per game, outperforming the human average of 3.92.</li>
+              <li>Built an information-theoretic solver for NYT Wordle that treats each game as sequential
+                  Bayesian inference, choosing the guess that maximizes expected entropy gain over the
+                  posterior of remaining candidate words.</li>
+              <li>Initial version averaged 3.283 guesses per game on the curated answer list, outperforming
+                  the human average of 3.92.</li>
+              <li>Designed a two-tier candidate model that falls back from the 2,315 curated answers to the
+                  full 12,972-word legal list, making the solver robust to out-of-vocabulary answers that
+                  break naive filtering.</li>
+              <li>Vectorized solver averages 3.483 guesses per game across simulated play on the full
+                  legal list, still well ahead of the human average.</li>
             </ul>
           </div>
         </div>

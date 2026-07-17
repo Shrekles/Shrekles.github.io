@@ -63,23 +63,32 @@
 
         <article class="card reveal" data-tags="information probability">
           <span class="card-icon">🟩</span>
-          <h3>Entropy-Based Optimization for Wordle Solving</h3>
-          <p>An entropy-based search algorithm for the NYT Wordle puzzle, modeled as sequential
-             decision-making under uncertainty with probabilistic belief updates and posterior
-             filtering. Averages 3.283 guesses per game — beating the human average of 3.92.</p>
+          <h3>Vectorized Entropy-Based Wordle Solver</h3>
+          <p>An information-theoretic solver for NYT Wordle that treats each game as sequential
+             Bayesian inference, choosing the guess that maximizes expected entropy gain over the
+             posterior of remaining candidates. A two-tier candidate model falls back from the
+             2,315 curated answers to the full 12,972-word legal list, averaging 3.483 guesses
+             per game — beating the human average of 3.92.</p>
           <div class="tags">
-            <span class="tag">entropy</span><span class="tag">sequential decisions</span><span class="tag">Python</span>
+            <span class="tag">entropy</span><span class="tag">Bayesian inference</span><span class="tag">Python</span>
+          </div>
+          <div class="card-links">
+            <a href="https://github.com/Shrekles/wordle-solver">code ↗</a>
           </div>
         </article>
 
         <article class="card reveal" data-tags="ml optimization">
           <span class="card-icon">ℓ₁</span>
           <h3>Sparse Attack Detection in Power Networks via Lasso Optimization</h3>
-          <p>Sensor attack detection formulated as a sparse recovery problem with L1-regularized
-             regression. Evaluated under noisy and adversarial conditions on simulated corrupted
-             measurements, identifying all attack locations with a 95% success rate across trials.</p>
+          <p>Sensor attack detection formulated as sparse recovery: L1-regularized regression over
+             measurements corrupted by Gaussian noise and sparse adversarial injections. Across
+             100 randomized Monte Carlo trials, achieved exact support recovery — every attacked
+             node and line, zero false positives — in 95% of trials.</p>
           <div class="tags">
             <span class="tag">sparse recovery</span><span class="tag">L1 regularization</span><span class="tag">CVXPY</span>
+          </div>
+          <div class="card-links">
+            <a href="https://github.com/Shrekles/sparse-attack-detection">code ↗</a>
           </div>
         </article>
 
