@@ -149,13 +149,11 @@
               <li>Built an information-theoretic solver for NYT Wordle that treats each game as sequential
                   Bayesian inference, choosing the guess that maximizes expected entropy gain over the
                   posterior of remaining candidate words.</li>
-              <li>Initial version averaged 3.283 guesses per game on the curated answer list, outperforming
-                  the human average of 3.92.</li>
               <li>Designed a two-tier candidate model that falls back from the 2,315 curated answers to the
                   full 12,972-word legal list, making the solver robust to out-of-vocabulary answers that
                   break naive filtering.</li>
               <li>Vectorized solver averages 3.483 guesses per game across simulated play on the full
-                  legal list, still well ahead of the human average.</li>
+                  legal list, outperforming the human average of 3.92.</li>
             </ul>
           </div>
         </div>
