@@ -49,13 +49,27 @@
         <!-- data-tags controls which filters match (space-separated: ml optimization probability information).
              To add a code/report link to a card, add inside it:
              <div class="card-links"><a href="https://github.com/...">code ↗</a></div> -->
+        <article class="card reveal" data-tags="ml">
+          <span class="card-icon">🎮</span>
+          <h3>RL Environment for Deterministic Platformer Control</h3>
+          <p>An AlphaZero-style planning agent for Geometry Dash that exploits the game's
+             deterministic fixed-tick physics to combine a learned policy with real-time forward
+             search. State comes from direct game-engine data rather than rendered frames, and
+             state forking against the C++ engine rolls candidate action sequences forward N ticks —
+             letting MCTS plan through obstacle layouts instead of memorizing level-specific
+             trajectories.</p>
+          <div class="tags">
+            <span class="tag">reinforcement learning</span><span class="tag">MCTS</span><span class="tag">C++</span>
+          </div>
+        </article>
+
         <article class="card reveal" data-tags="probability optimization information">
           <span class="card-icon">𝒲</span>
           <h3>An Exposition of the Sharp Symmetrized Talagrand Inequality</h3>
           <p>A study of a recent result on optimal transport bounds measuring distance to
              centered distributions. Using convex analysis and stochastic calculus, I provided
-             alternate proofs to key results, and I'm building Monte Carlo simulations to test
-             and visualize the inequality numerically.</p>
+             alternate proofs to key results, and built Monte Carlo simulations to test and
+             visualize the inequality numerically.</p>
           <div class="tags">
             <span class="tag">optimal transport</span><span class="tag">convex analysis</span><span class="tag">stochastic calculus</span>
           </div>

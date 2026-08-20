@@ -75,13 +75,13 @@
           </div>
         </div>
         <div class="resume-item">
-          <div class="when">Incoming Aug 2026</div>
+          <div class="when">Aug 2026 — present</div>
           <div class="what">
             <h4>Undergraduate Course Staff — EECS 126</h4>
             <div class="where">UC Berkeley EECS</div>
             <ul>
               <li>1 of 3 selected tutors for EECS 126: Probability and Random Processes, Fall 2026.</li>
-              <li>Will lead office hours, answer student questions, grade assignments and exams, and support administration.</li>
+              <li>Leading office hours, answering student questions, grading assignments and exams, and supporting administration.</li>
             </ul>
           </div>
         </div>
@@ -94,8 +94,8 @@
               <li>Analyzed measured current-draw time-series to model battery discharge dynamics under
                   varying load, deriving a reduced formulation that estimated battery state faster than
                   the team's existing numerical simulation.</li>
-              <li>Collaborated within a multidisciplinary engineering team, contributing the model to the
-                  shared simulation codebase for integration.</li>
+              <li>Contributed the model to the shared simulation codebase for integration in a
+                  multidisciplinary team.</li>
             </ul>
           </div>
         </div>
@@ -105,14 +105,44 @@
       <div class="resume-section reveal">
         <h3>Projects</h3>
         <div class="resume-item">
-          <div class="when">May 2026 — present</div>
+          <div class="when">Aug 2026 — present</div>
+          <div class="what">
+            <h4>Reinforcement Learning Environment for Deterministic Platformer Control</h4>
+            <ul>
+              <li>Designing an AlphaZero-style planning agent for playing Geometry Dash, exploiting
+                  deterministic fixed-tick physics to combine a learned policy with real-time forward search.</li>
+              <li>Building the state representation from direct game-engine data rather than rendered frames for CNNs.</li>
+              <li>Implementing state forking against the C++ engine to roll candidate action sequences forward
+                  N ticks, enabling MCTS to plan through obstacle layouts instead of memorizing level-specific
+                  trajectories.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="resume-item">
+          <div class="when">May — Aug 2026</div>
           <div class="what">
             <h4>An Exposition of the Sharp Symmetrized Talagrand Inequality</h4>
             <div class="where">Research project</div>
             <ul>
-              <li>Studying a recent result on optimal transport bounds measuring distance to centered distributions.</li>
+              <li>Studied a recent result on optimal transport bounds measuring distance to centered distributions.</li>
               <li>Provided alternate proofs to key results using convex analysis and stochastic calculus.</li>
-              <li>Building Monte Carlo simulations on probability distributions to test and visualize the inequality numerically.</li>
+              <li>Built Monte Carlo simulations on probability distributions to test and visualize the inequality numerically.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="resume-item">
+          <div class="when">Mar 2025 — Jul 2026</div>
+          <div class="what">
+            <h4>Vectorized Entropy-Based Wordle Solver</h4>
+            <ul>
+              <li>Built an information-theoretic solver for NYT Wordle that treats each game as sequential
+                  Bayesian inference, choosing the guess that maximizes expected entropy gain over the
+                  posterior of remaining candidate words.</li>
+              <li>Designed a two-tier candidate model that falls back from the 2,315 curated answers to the
+                  full 12,972-word legal list, making the solver robust to out-of-vocabulary answers that
+                  break naive filtering.</li>
+              <li>Averaged 3.483 guesses per game across simulated play, outperforming the human average
+                  of 3.92 guesses.</li>
             </ul>
           </div>
         </div>
@@ -138,22 +168,6 @@
               <li>Built a neural network in RISC-V assembly to classify handwritten MNIST digits using
                   matrix multiplication and file I/O routines.</li>
               <li>Implemented low-level numerical computation and data processing pipelines directly in assembly.</li>
-            </ul>
-          </div>
-        </div>
-        <div class="resume-item">
-          <div class="when">Mar 2025 — Jul 2026</div>
-          <div class="what">
-            <h4>Vectorized Entropy-Based Wordle Solver</h4>
-            <ul>
-              <li>Built an information-theoretic solver for NYT Wordle that treats each game as sequential
-                  Bayesian inference, choosing the guess that maximizes expected entropy gain over the
-                  posterior of remaining candidate words.</li>
-              <li>Designed a two-tier candidate model that falls back from the 2,315 curated answers to the
-                  full 12,972-word legal list, making the solver robust to out-of-vocabulary answers that
-                  break naive filtering.</li>
-              <li>Vectorized solver averages 3.483 guesses per game across simulated play on the full
-                  legal list, outperforming the human average of 3.92.</li>
             </ul>
           </div>
         </div>
@@ -186,8 +200,7 @@
             <div class="tags">
               <span class="tag">NumPy</span><span class="tag">SciPy</span>
               <span class="tag">CVXPY</span><span class="tag">Matplotlib</span>
-              <span class="tag">Git</span><span class="tag">GDB</span>
-              <span class="tag">Valgrind</span><span class="tag">Logisim</span><span class="tag">Unity</span>
+              <span class="tag">Git</span><span class="tag">Claude CLI</span><span class="tag">Codex CLI</span>
             </div>
           </div>
         </div>
