@@ -21,7 +21,7 @@ Personal research website — homepage, research projects, and resume. Plain HTM
 
 | What | Where |
 |---|---|
-| Name, typing phrases ("I like …") | `index.html` (hero section; phrases are in the `data-phrases` attribute) |
+| Name and hero line | `index.html` (hero section) |
 | About me text, title, location | `index.html` (about section + profile card) |
 | Profile photo | drop your file at `assets/profile.jpg` (square crop looks best; initials show until then) |
 | Selected projects + filters | `projects.html` — duplicate a `<article class="card">` block per project; `data-tags` controls filtering (`ml`, `optimization`, `probability`, `information`) |
@@ -33,6 +33,9 @@ Personal research website — homepage, research projects, and resume. Plain HTM
 ## Features
 
 - Dark/light theme toggle (remembers your choice, respects system preference)
-- Animated typing effect, scroll-reveal animations, cursor-glow cards
+- Generative Poisson–Voronoi background, drawn on a canvas from a fresh random
+  point sample each visit (`drawVoronoi` in `assets/main.js`; tune `spacing` for
+  cell size, edge/seed colors for the palette)
+- Scroll-reveal animations, cursor-glow cards
 - Research project filtering by area, no frameworks or dependencies
 - Responsive down to mobile widths; respects `prefers-reduced-motion`

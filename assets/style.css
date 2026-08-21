@@ -50,17 +50,16 @@ body {
 
 ::selection { background: var(--accent); color: var(--bg); }
 
-/* ---------- background grid + glow ---------- */
-.bg-grid {
+/* ---------- background: Poisson–Voronoi + glow ---------- */
+.bg-voronoi {
   position: fixed;
   inset: 0;
   z-index: -2;
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 75%);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, black 25%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, black 25%, transparent 78%);
 }
 
 .bg-glow {
