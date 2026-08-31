@@ -403,32 +403,28 @@ section { padding: 72px 0; }
 }
 
 /* ---------- course notes ---------- */
-.empty-state {
+/* end-of-page marker */
+.scroll-end {
   text-align: center;
-  padding: 8px 0 32px;
+  padding: 64px 0 8px;
 }
 
-.empty-state img {
+.scroll-end img {
   display: block;
   width: 100%;
-  max-width: 470px;
-  margin: 0 auto 28px;
+  max-width: 400px;
+  margin: 0 auto 18px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
 }
 
-.empty-state h3 {
-  font-size: 20px;
-  font-weight: 650;
-  letter-spacing: -0.015em;
-  margin-bottom: 8px;
-}
-
-.empty-state p {
-  color: var(--text-dim);
-  font-size: 15px;
-  max-width: 460px;
+.scroll-end p {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-faint);
+  max-width: 420px;
   margin: 0 auto;
+  line-height: 1.6;
 }
 
 /* rows for when notes exist — see the template in notes.html */
