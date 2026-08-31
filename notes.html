@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rex Ouyang — Course Notes</title>
+  <meta name="description" content="Scribed undergraduate course notes by Rex Ouyang." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <script src="assets/main.js" defer></script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>∇</text></svg>" />
+</head>
+<body>
+  <canvas class="bg-voronoi" id="bg-voronoi" aria-hidden="true"></canvas>
+  <div class="bg-glow"></div>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="logo" href="index.html">rex<span class="accent">.</span>dev</a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="projects.html"><span class="nav-full">Selected </span>Projects</a>
+        <a href="notes.html" class="active"><span class="nav-full">Course </span>Notes</a>
+        <a href="resume.html">Resume</a>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀</button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="container" style="padding-top: 80px;">
+      <div class="section-header reveal">
+        <div class="eyebrow">// notes</div>
+        <h2>Undergraduate course notes</h2>
+        <p>Scribed notes from courses I've taken — mostly math, probability, and EECS.
+           I'll post them here as I write them up.</p>
+      </div>
+
+      <!-- ============ EMPTY STATE ============
+           Delete this whole block once you add your first note below. -->
+      <div class="empty-state reveal">
+        <img src="assets/notes-empty.png"
+             alt="An empty stretch of Bikini Bottom seafloor, with nothing on it" />
+        <h3>Nothing here yet</h3>
+        <p>No notes posted so far. They'll show up here once I've cleaned them up.</p>
+      </div>
+
+      <!-- ============ NOTES ============
+           Drop each PDF in assets/notes/ and add one row per set of notes.
+           Copy this template, uncomment it, and fill in the details:
+
+      <div class="term-notes reveal">
+        <a class="note-row" href="assets/notes/eecs126.pdf">
+          <span class="note-code">EECS 126</span>
+          <span class="note-title">Probability and Random Processes</span>
+          <span class="note-meta">Fall 2026 · PDF ↗</span>
+        </a>
+        <a class="note-row" href="assets/notes/math104.pdf">
+          <span class="note-code">MATH 104</span>
+          <span class="note-title">Introduction to Analysis</span>
+          <span class="note-meta">Spring 2026 · PDF ↗</span>
+        </a>
+      </div>
+      -->
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p>© 2026 Rex Ouyang · built with plain HTML/CSS, hosted on GitHub Pages</p>
+      <div class="socials">
+        <a href="https://github.com/Shrekles">github</a>
+        <a href="https://www.linkedin.com/in/rex-ouyang/">linkedin</a>
+        <a href="mailto:rexhouyang@berkeley.edu">email</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
