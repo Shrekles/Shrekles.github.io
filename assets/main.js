@@ -13,6 +13,7 @@ function toggleTheme() {
   localStorage.setItem("theme", next);
   updateToggleIcon();
   drawVoronoi();
+  drawNoteThumbs();
 }
 
 function updateToggleIcon() {
@@ -101,9 +102,224 @@ function drawVoronoi(resample) {
   }
 }
 
+/* ============ course-note thumbnails ============
+   Generative panels for the icon view, in the same spirit as the background:
+   sampled fresh on load, redrawn (not resampled) when the theme flips.
+     "clt" — random walks fanning out under a √t envelope, with the limiting
+             Gaussian drawn on the right edge. EE 226A, Donsker/CLT.
+     "ito" — sample paths of dX = μX dt + σX dW, stepped with Euler–Maruyama,
+             which is the scheme in Lecture 24 of the 226B notes. */
+function gauss() {
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+function thumbPalette() {
+  const light = document.documentElement.getAttribute("data-theme") === "light";
+  return light
+    ? { a: [13, 148, 136], b: [99, 102, 241], faint: "rgba(15, 23, 42, 0.10)" }
+    : { a: [94, 234, 212], b: [129, 140, 248], faint: "rgba(255, 255, 255, 0.09)" };
+}
+
+function mixRGB(c1, c2, t, alpha) {
+  const c = [0, 1, 2].map((i) => Math.round(c1[i] + (c2[i] - c1[i]) * t));
+  return `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha})`;
+}
+
+/* size the backing store to DPR; returns null when the canvas is hidden */
+function thumbCtx(cv) {
+  const w = cv.clientWidth, h = cv.clientHeight;
+  if (!w || !h) return null;
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = w * dpr;
+  cv.height = h * dpr;
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  return { ctx, w, h };
+}
+
+function simulateWalks() {
+  const steps = 64, count = 24;
+  const walks = [];
+  for (let k = 0; k < count; k++) {
+    let s = 0;
+    const path = [0];
+    for (let i = 0; i < steps; i++) {
+      s += Math.random() < 0.5 ? -1 : 1;
+      path.push(s);
+    }
+    walks.push(path);
+  }
+  return { steps, walks };
+}
+
+function drawCLT({ ctx, w, h }, { steps, walks }) {
+  const pal = thumbPalette();
+  const pad = 10;
+  const split = w * 0.78;              /* walks left of here, limit law right */
+  const mid = h / 2;
+  const half = mid - pad;
+  const scale = half / (3.1 * Math.sqrt(steps));   /* ±3.1σ fits the panel */
+  const X = (i) => pad + (i / steps) * (split - pad);
+  const Y = (v) => mid - v * scale;
+
+  /* ±1σ and ±2σ envelopes — the √t spread the walks live inside */
+  ctx.setLineDash([3, 3]);
+  ctx.lineWidth = 1;
+  for (const k of [1, 2]) {
+    for (const sign of [1, -1]) {
+      ctx.strokeStyle = mixRGB(pal.b, pal.b, 0, k === 1 ? 0.5 : 0.26);
+      ctx.beginPath();
+      for (let i = 0; i <= steps; i++) {
+        const y = Y(sign * k * Math.sqrt(i));
+        i ? ctx.lineTo(X(i), y) : ctx.moveTo(X(i), y);
+      }
+      ctx.stroke();
+    }
+  }
+  ctx.setLineDash([]);
+
+  ctx.strokeStyle = pal.faint;
+  ctx.beginPath();
+  ctx.moveTo(pad, mid);
+  ctx.lineTo(split, mid);
+  ctx.stroke();
+
+  walks.forEach((path, k) => {
+    ctx.strokeStyle = mixRGB(pal.a, pal.b, k / (walks.length - 1), 0.5);
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    for (let i = 0; i <= steps; i++) {
+      const y = Y(path[i]);
+      i ? ctx.lineTo(X(i), y) : ctx.moveTo(X(i), y);
+    }
+    ctx.stroke();
+  });
+
+  /* the Gaussian they converge to, lying on its side */
+  const sd = Math.sqrt(steps), bell = w - split - pad * 0.5;
+  ctx.beginPath();
+  for (let y = pad; y <= h - pad; y++) {
+    const z = (mid - y) / (sd * scale);
+    const x = split + Math.exp(-(z * z) / 2) * bell;
+    y === pad ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.strokeStyle = mixRGB(pal.a, pal.b, 0.5, 0.85);
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+  ctx.lineTo(split, h - pad);
+  ctx.lineTo(split, pad);
+  ctx.closePath();
+  ctx.fillStyle = mixRGB(pal.a, pal.b, 0.5, 0.12);
+  ctx.fill();
+}
+
+function simulateIto() {
+  const steps = 180, count = 7, dt = 1 / steps, mu = 0.6, sigma = 0.62;
+  const paths = [];
+  for (let p = 0; p < count; p++) {
+    let x = 1;
+    const path = [x];
+    for (let i = 0; i < steps; i++) {
+      x += mu * x * dt + sigma * x * Math.sqrt(dt) * gauss();   /* Euler–Maruyama */
+      path.push(Math.max(x, 1e-4));
+    }
+    paths.push(path);
+  }
+  return { steps, paths };
+}
+
+function drawIto({ ctx, w, h }, { steps, paths }) {
+  const pal = thumbPalette();
+  const pad = 10;
+  let lo = Infinity, hi = -Infinity;
+  for (const p of paths) for (const v of p) { if (v < lo) lo = v; if (v > hi) hi = v; }
+  const span = hi - lo || 1;
+  const X = (i) => pad + (i / steps) * (w - 2 * pad);
+  const Y = (v) => h - pad - ((v - lo) / span) * (h - 2 * pad);
+
+  /* X₀ = 1, the common start every path diffuses away from */
+  ctx.strokeStyle = pal.faint;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(pad, Y(1));
+  ctx.lineTo(w - pad, Y(1));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  paths.forEach((path, k) => {
+    ctx.strokeStyle = mixRGB(pal.a, pal.b, k / (paths.length - 1), 0.82);
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    for (let i = 0; i <= steps; i++) {
+      const y = Y(path[i]);
+      i ? ctx.lineTo(X(i), y) : ctx.moveTo(X(i), y);
+    }
+    ctx.stroke();
+
+    ctx.fillStyle = mixRGB(pal.a, pal.b, k / (paths.length - 1), 0.9);
+    ctx.beginPath();
+    ctx.arc(X(steps), Y(path[steps]), 2, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+/* keep each panel's sample so a theme flip recolors rather than reshuffles */
+const thumbSamples = new WeakMap();
+
+function drawNoteThumbs() {
+  document.querySelectorAll(".note-row[data-viz]").forEach((row) => {
+    const cv = row.querySelector(".note-thumb");
+    if (!cv) return;
+    const dims = thumbCtx(cv);
+    if (!dims) return;                 /* compact view — canvas is display:none */
+    const ito = row.dataset.viz === "ito";
+    let sample = thumbSamples.get(cv);
+    if (!sample) {
+      sample = ito ? simulateIto() : simulateWalks();
+      thumbSamples.set(cv, sample);
+    }
+    (ito ? drawIto : drawCLT)(dims, sample);
+  });
+}
+
+function setNotesView(view, persist) {
+  const wrap = document.querySelector(".term-notes");
+  if (!wrap) return;
+  wrap.classList.toggle("view-grid", view === "grid");
+  document.querySelectorAll(".view-btn").forEach((b) =>
+    b.setAttribute("aria-pressed", String(b.dataset.view === view))
+  );
+  if (persist) localStorage.setItem("notesView", view);
+  /* canvases have no width until the grid class lands, so draw after layout */
+  if (view === "grid") requestAnimationFrame(drawNoteThumbs);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   updateToggleIcon();
   drawVoronoi(true);
+
+  if (document.querySelector(".term-notes")) {
+    setNotesView(localStorage.getItem("notesView") === "grid" ? "grid" : "compact", false);
+    document.querySelectorAll(".view-btn").forEach((btn) =>
+      btn.addEventListener("click", () => setNotesView(btn.dataset.view, true))
+    );
+
+    /* A thumb has no size until the grid class lands, and its width shifts again
+       when the scrollbar appears. Redrawing on the actual box change covers both,
+       and is exact where a one-shot rAF can fire at a stale width. Cheap, since
+       the sample is cached — this only recolours/rescales. */
+    if ("ResizeObserver" in window) {
+      const ro = new ResizeObserver(() => drawNoteThumbs());
+      document.querySelectorAll(".note-thumb").forEach((c) => ro.observe(c));
+    }
+  }
 
   /* redraw only on real viewport changes, not mobile scroll chrome */
   let lastW = window.innerWidth, lastH = window.innerHeight, resizeTimer;
@@ -113,7 +329,10 @@ document.addEventListener("DOMContentLoaded", () => {
     lastW = w;
     lastH = h;
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => drawVoronoi(true), 180);
+    resizeTimer = setTimeout(() => {
+      drawVoronoi(true);
+      drawNoteThumbs();
+    }, 180);
   });
 
   /* ============ scroll reveal ============ */
