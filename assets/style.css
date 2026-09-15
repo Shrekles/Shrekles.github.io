@@ -520,7 +520,6 @@ section { padding: 72px 0; }
 }
 
 .resample-btn:hover { color: var(--accent); border-color: var(--accent); }
-.resample-btn[hidden] { display: none; }
 .resample-btn svg { width: 13px; height: 13px; }
 .resample-btn.spin svg { animation: resample-spin 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 

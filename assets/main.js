@@ -394,9 +394,6 @@ function setNotesView(view, persist) {
     b.setAttribute("aria-pressed", String(b.dataset.view === view))
   );
   if (persist) localStorage.setItem("notesView", view);
-  /* nothing to resample when the panels aren't on screen */
-  const resample = document.querySelector(".resample-btn");
-  if (resample) resample.toggleAttribute("hidden", view !== "grid");
   /* canvases have no width until the grid class lands, so wait for layout.
      Clicking "Icons" replays; on first load the observer below starts it once
      the panels are actually on screen. */
@@ -418,7 +415,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const resampleBtn = document.querySelector(".resample-btn");
     if (resampleBtn) {
       resampleBtn.addEventListener("click", () => {
-        resampleThumbs();
+        /* resampling is only visible in icon view — go there rather than doing
+           nothing, so the button always does something */
+        const grid = document.querySelector(".term-notes.view-grid");
+        if (!grid) setNotesView("grid", true);
+        requestAnimationFrame(resampleThumbs);
         resampleBtn.classList.remove("spin");
         void resampleBtn.offsetWidth;          /* restart the spin on rapid clicks */
         resampleBtn.classList.add("spin");

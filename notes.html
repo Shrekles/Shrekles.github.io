@@ -121,8 +121,8 @@
            data-viz picks which generative thumbnail main.js draws into its canvas
            ("clt" or "ito"). A row with no data-viz just gets an empty panel. -->
       <div class="notes-toolbar reveal">
-        <!-- icon view only; main.js hides this in compact view -->
-        <button class="resample-btn" type="button" hidden
+        <!-- always visible; clicking it from compact view switches to icon view first -->
+        <button class="resample-btn" type="button"
                 aria-label="Draw new sample paths and replay the animation">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"
                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
