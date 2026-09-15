@@ -389,17 +389,24 @@ function resampleThumbs() {
 function setNotesView(view, persist) {
   const wrap = document.querySelector(".term-notes");
   if (!wrap) return;
+  const wasGrid = wrap.classList.contains("view-grid");
   wrap.classList.toggle("view-grid", view === "grid");
   document.querySelectorAll(".view-btn").forEach((b) =>
     b.setAttribute("aria-pressed", String(b.dataset.view === view))
   );
   if (persist) localStorage.setItem("notesView", view);
-  /* canvases have no width until the grid class lands, so wait for layout.
-     Clicking "Icons" replays; on first load the observer below starts it once
-     the panels are actually on screen. */
-  if (view === "grid") {
-    requestAnimationFrame(() => (persist ? startThumbAnimations() : drawNoteThumbs()));
-  }
+  if (view !== "grid") return;
+
+  /* Canvases have no width until the grid class lands, so wait for layout.
+       compact -> icons : fresh sample, so the panels aren't the ones you left
+       icons  -> icons  : replay the same paths
+       first load       : just paint; the observer starts it once on screen */
+  const arriving = persist && !wasGrid;
+  requestAnimationFrame(() => {
+    if (!persist) drawNoteThumbs();
+    else if (arriving) resampleThumbs();
+    else startThumbAnimations();
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -416,10 +423,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (resampleBtn) {
       resampleBtn.addEventListener("click", () => {
         /* resampling is only visible in icon view — go there rather than doing
-           nothing, so the button always does something */
-        const grid = document.querySelector(".term-notes.view-grid");
-        if (!grid) setNotesView("grid", true);
-        requestAnimationFrame(resampleThumbs);
+           nothing, so the button always does something. The switch resamples on
+           its own, so don't also do it here and draw two samples. */
+        if (document.querySelector(".term-notes.view-grid")) resampleThumbs();
+        else setNotesView("grid", true);
         resampleBtn.classList.remove("spin");
         void resampleBtn.offsetWidth;          /* restart the spin on rapid clicks */
         resampleBtn.classList.add("spin");
