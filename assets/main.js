@@ -128,6 +128,36 @@ function mixRGB(c1, c2, t, alpha) {
   return `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha})`;
 }
 
+const clamp01 = (t) => (t < 0 ? 0 : t > 1 ? 1 : t);
+/* ease in and out — the paths creep off the start, race through the middle,
+   then settle as they reach T */
+const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+/* Stroke a polyline up to a fractional index, interpolating the final partial
+   segment. Without the interpolation the leading edge would jump a whole step
+   at a time, which reads as stuttering at these step counts. Returns the head
+   point so callers can put a dot on it. */
+function strokeUpTo(ctx, pt, n, f) {
+  const i0 = Math.max(0, Math.min(Math.floor(f), n));
+  const first = pt(0);
+  ctx.beginPath();
+  ctx.moveTo(first[0], first[1]);
+  for (let i = 1; i <= i0; i++) {
+    const p = pt(i);
+    ctx.lineTo(p[0], p[1]);
+  }
+  let head = pt(i0);
+  if (i0 < n) {
+    const fr = f - i0;
+    const a = pt(i0), b = pt(i0 + 1);
+    head = [a[0] + (b[0] - a[0]) * fr, a[1] + (b[1] - a[1]) * fr];
+    if (fr > 0) ctx.lineTo(head[0], head[1]);
+  }
+  ctx.stroke();
+  return head;
+}
+
 /* size the backing store to DPR; returns null when the canvas is hidden */
 function thumbCtx(cv) {
   const w = cv.clientWidth, h = cv.clientHeight;
@@ -158,7 +188,7 @@ function simulateWalks() {
   return { steps, walks };
 }
 
-function drawCLT({ ctx, w, h }, { steps, walks }) {
+function drawCLT({ ctx, w, h }, { steps, walks }, prog) {
   const pal = thumbPalette();
   const pad = 10;
   const split = w * 0.78;              /* walks left of here, limit law right */
@@ -167,55 +197,46 @@ function drawCLT({ ctx, w, h }, { steps, walks }) {
   const scale = half / (3.1 * Math.sqrt(steps));   /* ±3.1σ fits the panel */
   const X = (i) => pad + (i / steps) * (split - pad);
   const Y = (v) => mid - v * scale;
+  const f = prog.walks * steps;        /* fractional step the sweep has reached */
 
-  /* ±1σ and ±2σ envelopes — the √t spread the walks live inside */
+  /* ±1σ and ±2σ envelopes, growing alongside the walks they contain */
   ctx.setLineDash([3, 3]);
   ctx.lineWidth = 1;
   for (const k of [1, 2]) {
     for (const sign of [1, -1]) {
       ctx.strokeStyle = mixRGB(pal.b, pal.b, 0, k === 1 ? 0.5 : 0.26);
-      ctx.beginPath();
-      for (let i = 0; i <= steps; i++) {
-        const y = Y(sign * k * Math.sqrt(i));
-        i ? ctx.lineTo(X(i), y) : ctx.moveTo(X(i), y);
-      }
-      ctx.stroke();
+      strokeUpTo(ctx, (i) => [X(i), Y(sign * k * Math.sqrt(i))], steps, f);
     }
   }
   ctx.setLineDash([]);
 
   ctx.strokeStyle = pal.faint;
-  ctx.beginPath();
-  ctx.moveTo(pad, mid);
-  ctx.lineTo(split, mid);
-  ctx.stroke();
+  ctx.lineWidth = 1;
+  strokeUpTo(ctx, (i) => [X(i), mid], steps, f);
 
   walks.forEach((path, k) => {
     ctx.strokeStyle = mixRGB(pal.a, pal.b, k / (walks.length - 1), 0.5);
     ctx.lineWidth = 1.1;
-    ctx.beginPath();
-    for (let i = 0; i <= steps; i++) {
-      const y = Y(path[i]);
-      i ? ctx.lineTo(X(i), y) : ctx.moveTo(X(i), y);
-    }
-    ctx.stroke();
+    strokeUpTo(ctx, (i) => [X(i), Y(path[i])], steps, f);
   });
 
-  /* the Gaussian they converge to, lying on its side */
-  const sd = Math.sqrt(steps), bell = w - split - pad * 0.5;
+  /* the Gaussian they converge to, swelling out of the split line once the
+     walks have landed */
+  if (prog.bell <= 0) return;
+  const sd = Math.sqrt(steps), bell = (w - split - pad * 0.5) * prog.bell;
   ctx.beginPath();
   for (let y = pad; y <= h - pad; y++) {
     const z = (mid - y) / (sd * scale);
     const x = split + Math.exp(-(z * z) / 2) * bell;
     y === pad ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   }
-  ctx.strokeStyle = mixRGB(pal.a, pal.b, 0.5, 0.85);
+  ctx.strokeStyle = mixRGB(pal.a, pal.b, 0.5, 0.85 * prog.bell);
   ctx.lineWidth = 1.6;
   ctx.stroke();
   ctx.lineTo(split, h - pad);
   ctx.lineTo(split, pad);
   ctx.closePath();
-  ctx.fillStyle = mixRGB(pal.a, pal.b, 0.5, 0.12);
+  ctx.fillStyle = mixRGB(pal.a, pal.b, 0.5, 0.12 * prog.bell);
   ctx.fill();
 }
 
@@ -234,14 +255,17 @@ function simulateIto() {
   return { steps, paths };
 }
 
-function drawIto({ ctx, w, h }, { steps, paths }) {
+function drawIto({ ctx, w, h }, { steps, paths }, prog) {
   const pal = thumbPalette();
   const pad = 10;
+  /* scale to the full sample, not the drawn prefix, so the frame doesn't
+     rescale under the paths as they advance */
   let lo = Infinity, hi = -Infinity;
   for (const p of paths) for (const v of p) { if (v < lo) lo = v; if (v > hi) hi = v; }
   const span = hi - lo || 1;
   const X = (i) => pad + (i / steps) * (w - 2 * pad);
   const Y = (v) => h - pad - ((v - lo) / span) * (h - 2 * pad);
+  const f = prog.paths * steps;
 
   /* X₀ = 1, the common start every path diffuses away from */
   ctx.strokeStyle = pal.faint;
@@ -249,43 +273,104 @@ function drawIto({ ctx, w, h }, { steps, paths }) {
   ctx.setLineDash([3, 3]);
   ctx.beginPath();
   ctx.moveTo(pad, Y(1));
-  ctx.lineTo(w - pad, Y(1));
+  ctx.lineTo(pad + (w - 2 * pad) * prog.paths, Y(1));
   ctx.stroke();
   ctx.setLineDash([]);
 
   paths.forEach((path, k) => {
-    ctx.strokeStyle = mixRGB(pal.a, pal.b, k / (paths.length - 1), 0.82);
+    const t = k / (paths.length - 1);
+    ctx.strokeStyle = mixRGB(pal.a, pal.b, t, 0.82);
     ctx.lineWidth = 1.3;
-    ctx.beginPath();
-    for (let i = 0; i <= steps; i++) {
-      const y = Y(path[i]);
-      i ? ctx.lineTo(X(i), y) : ctx.moveTo(X(i), y);
-    }
-    ctx.stroke();
+    const head = strokeUpTo(ctx, (i) => [X(i), Y(path[i])], steps, f);
 
-    ctx.fillStyle = mixRGB(pal.a, pal.b, k / (paths.length - 1), 0.9);
+    /* dot rides the leading edge, and comes to rest at X_T */
+    ctx.fillStyle = mixRGB(pal.a, pal.b, t, 0.9);
     ctx.beginPath();
-    ctx.arc(X(steps), Y(path[steps]), 2, 0, Math.PI * 2);
+    ctx.arc(head[0], head[1], 2, 0, Math.PI * 2);
     ctx.fill();
   });
 }
 
-/* keep each panel's sample so a theme flip recolors rather than reshuffles */
-const thumbSamples = new WeakMap();
+/* Each panel keeps its sample *and* how far through the animation it is, so a
+   theme flip or a resize re-renders the current frame rather than snapping to
+   the finished drawing. */
+const thumbState = new WeakMap();
+
+const ITO_MS = 2000, CLT_WALK_MS = 1700, CLT_BELL_MS = 800;
+const zeroProg = (viz) => (viz === "ito" ? { paths: 0 } : { walks: 0, bell: 0 });
+const fullProg = (viz) => (viz === "ito" ? { paths: 1 } : { walks: 1, bell: 1 });
+
+function thumbStateFor(cv, viz) {
+  let st = thumbState.get(cv);
+  if (!st) {
+    st = {
+      sample: viz === "ito" ? simulateIto() : simulateWalks(),
+      prog: zeroProg(viz),
+      raf: 0,
+    };
+    thumbState.set(cv, st);
+  }
+  return st;
+}
+
+function renderThumb(cv, viz) {
+  const dims = thumbCtx(cv);
+  if (!dims) return null;              /* compact view — canvas is display:none */
+  const st = thumbStateFor(cv, viz);
+  (viz === "ito" ? drawIto : drawCLT)(dims, st.sample, st.prog);
+  return st;
+}
 
 function drawNoteThumbs() {
   document.querySelectorAll(".note-row[data-viz]").forEach((row) => {
     const cv = row.querySelector(".note-thumb");
-    if (!cv) return;
-    const dims = thumbCtx(cv);
-    if (!dims) return;                 /* compact view — canvas is display:none */
-    const ito = row.dataset.viz === "ito";
-    let sample = thumbSamples.get(cv);
-    if (!sample) {
-      sample = ito ? simulateIto() : simulateWalks();
-      thumbSamples.set(cv, sample);
+    if (cv) renderThumb(cv, row.dataset.viz);
+  });
+}
+
+function animateThumb(cv, viz) {
+  const st = thumbStateFor(cv, viz);
+  if (st.raf) cancelAnimationFrame(st.raf);
+  st.raf = 0;
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    st.prog = fullProg(viz);
+    renderThumb(cv, viz);
+    return;
+  }
+
+  /* Browsers freeze rAF in a hidden tab. Rewinding to zero here would leave the
+     panel blank for anyone who opens the page in a background tab, so wait for
+     the tab to surface and start then — with whatever is drawn left untouched. */
+  if (document.hidden) {
+    document.addEventListener("visibilitychange", () => animateThumb(cv, viz), { once: true });
+    return;
+  }
+
+  st.prog = zeroProg(viz);
+  const start = performance.now();
+  const tick = (now) => {
+    const ms = now - start;
+    let done;
+    if (viz === "ito") {
+      st.prog.paths = easeInOutCubic(clamp01(ms / ITO_MS));
+      done = ms >= ITO_MS;
+    } else {
+      /* walks sweep out first, then the limit law appears */
+      st.prog.walks = easeInOutCubic(clamp01(ms / CLT_WALK_MS));
+      st.prog.bell = easeOutCubic(clamp01((ms - CLT_WALK_MS) / CLT_BELL_MS));
+      done = ms >= CLT_WALK_MS + CLT_BELL_MS;
     }
-    (ito ? drawIto : drawCLT)(dims, sample);
+    renderThumb(cv, viz);
+    st.raf = done ? 0 : requestAnimationFrame(tick);
+  };
+  st.raf = requestAnimationFrame(tick);
+}
+
+function startThumbAnimations() {
+  document.querySelectorAll(".note-row[data-viz]").forEach((row) => {
+    const cv = row.querySelector(".note-thumb");
+    if (cv && cv.clientWidth) animateThumb(cv, row.dataset.viz);
   });
 }
 
@@ -297,8 +382,12 @@ function setNotesView(view, persist) {
     b.setAttribute("aria-pressed", String(b.dataset.view === view))
   );
   if (persist) localStorage.setItem("notesView", view);
-  /* canvases have no width until the grid class lands, so draw after layout */
-  if (view === "grid") requestAnimationFrame(drawNoteThumbs);
+  /* canvases have no width until the grid class lands, so wait for layout.
+     Clicking "Icons" replays; on first load the observer below starts it once
+     the panels are actually on screen. */
+  if (view === "grid") {
+    requestAnimationFrame(() => (persist ? startThumbAnimations() : drawNoteThumbs()));
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -318,6 +407,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if ("ResizeObserver" in window) {
       const ro = new ResizeObserver(() => drawNoteThumbs());
       document.querySelectorAll(".note-thumb").forEach((c) => ro.observe(c));
+    }
+
+    /* On a fresh load in icon view, hold the animation until the panels are on
+       screen — otherwise it plays out above the fold and is over before it's
+       seen. Fires once; the view toggle handles replays after that. */
+    if ("IntersectionObserver" in window) {
+      const wrap = document.querySelector(".term-notes");
+      const playObserver = new IntersectionObserver(
+        (entries, obs) => {
+          entries.forEach((e) => {
+            if (!e.isIntersecting || !e.target.classList.contains("view-grid")) return;
+            obs.disconnect();
+            startThumbAnimations();
+          });
+        },
+        { threshold: 0.25 }
+      );
+      playObserver.observe(wrap);
+    } else {
+      startThumbAnimations();
     }
   }
 
