@@ -296,7 +296,7 @@ function drawIto({ ctx, w, h }, { steps, paths }, prog) {
    the finished drawing. */
 const thumbState = new WeakMap();
 
-const ITO_MS = 2000, CLT_WALK_MS = 1700, CLT_BELL_MS = 800;
+const ITO_MS = 3200, CLT_WALK_MS = 2600, CLT_BELL_MS = 1100;
 const zeroProg = (viz) => (viz === "ito" ? { paths: 0 } : { walks: 0, bell: 0 });
 const fullProg = (viz) => (viz === "ito" ? { paths: 1 } : { walks: 1, bell: 1 });
 
@@ -409,26 +409,38 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll(".note-thumb").forEach((c) => ro.observe(c));
     }
 
-    /* Hold the animation until the panels are on screen, then replay every time
-       they come back. It's a ~2.5s run: playing it once on load means anyone
-       whose eye wasn't already there just sees the finished drawing and assumes
-       it's static. Scrolling away and back re-runs it. */
+    /* Observe each panel, not the whole section. The section is tall enough that
+       it never drops back under its threshold on a normal screen, so watching it
+       fires once on load and can never re-fire — which looks exactly like "it
+       doesn't animate". A 156px canvas scrolls in and out easily. */
     if ("IntersectionObserver" in window) {
-      const wrap = document.querySelector(".term-notes");
       const playObserver = new IntersectionObserver(
         (entries) => {
           entries.forEach((e) => {
-            if (e.isIntersecting && e.target.classList.contains("view-grid")) {
-              startThumbAnimations();
+            const row = e.target.closest(".note-row[data-viz]");
+            if (e.isIntersecting && row && e.target.clientWidth) {
+              animateThumb(e.target, row.dataset.viz);
             }
           });
         },
-        { threshold: 0.25 }
+        { threshold: 0.4 }
       );
-      playObserver.observe(wrap);
+      document.querySelectorAll(".note-thumb").forEach((c) => playObserver.observe(c));
     } else {
       startThumbAnimations();
     }
+
+    /* Hovering a card replays its panel — a dependable way to actually watch the
+       thing, rather than hoping to catch it on load. Ignored mid-run so mouse
+       jitter doesn't restart it. */
+    document.querySelectorAll(".note-row[data-viz]").forEach((row) => {
+      row.addEventListener("mouseenter", () => {
+        const cv = row.querySelector(".note-thumb");
+        if (!cv || !cv.clientWidth) return;
+        const st = thumbState.get(cv);
+        if (!st || !st.raf) animateThumb(cv, row.dataset.viz);
+      });
+    });
   }
 
   /* redraw only on real viewport changes, not mobile scroll chrome */
