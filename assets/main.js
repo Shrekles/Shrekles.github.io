@@ -409,6 +409,42 @@ function setNotesView(view, persist) {
   });
 }
 
+/* ============ end-of-page marker ============
+   One of these is picked uniformly at random per page load. To add another, drop
+   the file in assets/notes/ and append an entry — nothing else needs touching.
+   Index 0 must stay a still image: it's both the reduced-motion choice and the
+   fallback if a file is missing. */
+const NOTES_END_MEDIA = [
+  { src: "assets/notes-empty.png", alt: "An empty stretch of Bikini Bottom seafloor" },
+  { src: "assets/notes/spongebob-sad.gif", alt: "SpongeBob looking dejected" },
+  { src: "assets/notes/tumbleweed-couch.gif", alt: "A tumbleweed rolling past an empty couch" },
+  { src: "assets/notes/spongebob-eepygleeby.gif", alt: "A sleepy, contented SpongeBob" },
+];
+
+function pickNotesEndMedia() {
+  const img = document.querySelector(".scroll-end img");
+  if (!img) return;
+  const still = NOTES_END_MEDIA[0];
+  /* an animated GIF can't be paused, so don't serve one to reduced-motion users */
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const pool = reduced ? [still] : NOTES_END_MEDIA;
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  if (pick.src === img.getAttribute("src")) return;
+  /* fall back to the still if a file hasn't been added yet, so a missing GIF
+     degrades instead of showing a broken image */
+  img.onerror = () => {
+    img.onerror = null;
+    img.src = still.src;
+    img.alt = still.alt;
+  };
+  img.src = pick.src;
+  img.alt = pick.alt;
+}
+
+/* runs before DOMContentLoaded (the script is deferred), so the swap happens
+   early enough for the browser to drop the markup's original fetch */
+pickNotesEndMedia();
+
 document.addEventListener("DOMContentLoaded", () => {
   updateToggleIcon();
   drawVoronoi(true);
