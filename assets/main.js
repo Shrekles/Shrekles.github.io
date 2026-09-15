@@ -409,17 +409,18 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll(".note-thumb").forEach((c) => ro.observe(c));
     }
 
-    /* On a fresh load in icon view, hold the animation until the panels are on
-       screen — otherwise it plays out above the fold and is over before it's
-       seen. Fires once; the view toggle handles replays after that. */
+    /* Hold the animation until the panels are on screen, then replay every time
+       they come back. It's a ~2.5s run: playing it once on load means anyone
+       whose eye wasn't already there just sees the finished drawing and assumes
+       it's static. Scrolling away and back re-runs it. */
     if ("IntersectionObserver" in window) {
       const wrap = document.querySelector(".term-notes");
       const playObserver = new IntersectionObserver(
-        (entries, obs) => {
+        (entries) => {
           entries.forEach((e) => {
-            if (!e.isIntersecting || !e.target.classList.contains("view-grid")) return;
-            obs.disconnect();
-            startThumbAnimations();
+            if (e.isIntersecting && e.target.classList.contains("view-grid")) {
+              startThumbAnimations();
+            }
           });
         },
         { threshold: 0.25 }
