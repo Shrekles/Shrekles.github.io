@@ -374,6 +374,18 @@ function startThumbAnimations() {
   });
 }
 
+/* Throw away the cached sample and draw a fresh one, so the button gives new
+   randomness rather than replaying the same paths. */
+function resampleThumbs() {
+  document.querySelectorAll(".note-row[data-viz]").forEach((row) => {
+    const cv = row.querySelector(".note-thumb");
+    if (!cv || !cv.clientWidth) return;
+    const viz = row.dataset.viz;
+    thumbStateFor(cv, viz).sample = viz === "ito" ? simulateIto() : simulateWalks();
+    animateThumb(cv, viz);
+  });
+}
+
 function setNotesView(view, persist) {
   const wrap = document.querySelector(".term-notes");
   if (!wrap) return;
@@ -382,6 +394,9 @@ function setNotesView(view, persist) {
     b.setAttribute("aria-pressed", String(b.dataset.view === view))
   );
   if (persist) localStorage.setItem("notesView", view);
+  /* nothing to resample when the panels aren't on screen */
+  const resample = document.querySelector(".resample-btn");
+  if (resample) resample.toggleAttribute("hidden", view !== "grid");
   /* canvases have no width until the grid class lands, so wait for layout.
      Clicking "Icons" replays; on first load the observer below starts it once
      the panels are actually on screen. */
@@ -399,6 +414,17 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".view-btn").forEach((btn) =>
       btn.addEventListener("click", () => setNotesView(btn.dataset.view, true))
     );
+
+    const resampleBtn = document.querySelector(".resample-btn");
+    if (resampleBtn) {
+      resampleBtn.addEventListener("click", () => {
+        resampleThumbs();
+        resampleBtn.classList.remove("spin");
+        void resampleBtn.offsetWidth;          /* restart the spin on rapid clicks */
+        resampleBtn.classList.add("spin");
+      });
+      resampleBtn.addEventListener("animationend", () => resampleBtn.classList.remove("spin"));
+    }
 
     /* A thumb has no size until the grid class lands, and its width shifts again
        when the scrollbar appears. Redrawing on the actual box change covers both,
