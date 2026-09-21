@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Which transport–entropy inequalities are geometric? | Rex Ouyang</title>
+  <meta name="description" content="A characterization of the geometric instances of Courtade–Wang's generalized Blaschke–Santaló inequalities by three conditions G1–G3, where each condition comes from, and a proof that the Wasserstein barycenter datum satisfies all three." />
+  <link rel="canonical" href="https://shrekles.github.io/posts/geometricity-of-transport-entropy-inequalities.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Rex Ouyang" />
+  <meta property="og:title" content="Which transport–entropy inequalities are geometric?" />
+  <meta property="og:description" content="Three conditions characterizing when a transport–entropy inequality has a trivial sharp constant with Gaussians extremal — and why the Wasserstein barycenter satisfies them." />
+  <meta property="og:url" content="https://shrekles.github.io/posts/geometricity-of-transport-entropy-inequalities.html" />
+  <meta name="twitter:card" content="summary" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Which transport–entropy inequalities are geometric?",
+    "datePublished": "2026-09-21",
+    "inLanguage": "en",
+    "url": "https://shrekles.github.io/posts/geometricity-of-transport-entropy-inequalities.html",
+    "author": { "@type": "Person", "name": "Rex Ouyang" },
+    "about": ["Optimal transport", "Transport-entropy inequalities", "Blaschke-Santalo inequality",
+              "Wasserstein barycenter", "Semidefinite programming", "Information theory"],
+    "citation": "arXiv:2509.08998"
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <!-- KaTeX renders the math; auto-render walks the body once it has loaded -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+          onload="renderMathInElement(document.body, {
+            delimiters: [
+              { left: '\\[', right: '\\]', display: true },
+              { left: '\\(', right: '\\)', display: false }
+            ],
+            throwOnError: false
+          });"></script>
+  <script src="../assets/main.js" defer></script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>∇</text></svg>" />
+</head>
+<body>
+  <canvas class="bg-voronoi" id="bg-voronoi" aria-hidden="true"></canvas>
+  <div class="bg-glow"></div>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="logo" href="../index.html">rex<span class="accent">.</span>dev</a>
+      <div class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="../projects.html"><span class="nav-full">Selected </span>Projects</a>
+        <a href="../notes.html"><span class="nav-full">Course </span>Notes</a>
+        <a href="../blog.html" class="active">Blog</a>
+        <a href="../resume.html">Resume</a>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀</button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="container" style="padding-top: 80px;">
+      <div class="section-header reveal">
+        <a class="post-back" href="../blog.html">← all posts</a>
+        <h1 style="margin-top: 14px;">Which transport–entropy inequalities are geometric?</h1>
+        <div class="post-meta">2026-09-21 · optimal transport, information theory</div>
+      </div>
+
+      <article class="prose reveal">
+
+        <p>Talagrand's transport inequality says that for the standard Gaussian \(\gamma\) on
+        \(\mathbb{R}^d\), the cost of transporting \(\gamma\) to \(\mu\) is controlled by how far
+        \(\mu\) is from Gaussian in relative entropy:
+        \(W_2^2(\mu,\gamma) \le 2D(\mu \Vert \gamma)\). Inequalities of this shape — entropy on one
+        side, transport cost on the other — show up all over probability and convex geometry, and
+        the interesting question is almost never whether such an inequality holds. It is what the
+        <em>best constant</em> is, and whether Gaussians achieve it.</p>
+
+        <p>Courtade and Wang's recent
+        <a href="https://arxiv.org/abs/2509.08998">generalized Blaschke–Santaló-type inequalities</a>
+        give a large family of these at once, indexed by a choice of weights and a quadratic cost.
+        Each member comes with a sharp additive constant. For most members that constant is some
+        unpleasant number. For a few it is exactly zero, with standard Gaussians extremal — and those
+        are the ones with genuine geometric content. This post is about telling the two apart.</p>
+
+        <p>The punchline is that membership in the good class is decided by three conditions, two of
+        which are easy linear-algebra checks and one of which is a genuinely delicate
+        \(\log\det\) inequality. I will derive all three, show why the third is the hard one,
+        and then prove that the Wasserstein barycenter satisfies it — by a computation in which a
+        single Gaussian random variable does all the work.</p>
+
+        <h2>The setup</h2>
+
+        <p>Fix Euclidean spaces \(E_i = \mathbb{R}^{d_i}\) and let \(E = \bigoplus_i E_i\).
+        A <strong>datum</strong> is a pair \((c,Q)\): weights \(c_i \gt 0\) and a symmetric operator
+        \(Q\) on \(E\). Package them into a single operator</p>
+
+        \[ \Theta \;:=\; \mathrm{diag}(c_1 \mathrm{id}_{E_1}, \ldots, c_n \mathrm{id}_{E_n}) - 2Q, \qquad
+           \langle x, \Theta x\rangle \;=\; \sum_i c_i |x_i|^2 - 2\langle x, Qx \rangle . \]
+
+        <p>For centered marginals \(\mu_i\) on \(E_i\), the inequality under study is</p>
+
+        \[ \sum_{i=1}^n c_i\, D(\mu_i \Vert \gamma_{E_i}) \;\ge\;
+           \frac12 \inf_{\mu \in \Pi(\mu_1,\ldots,\mu_n)} \int_E \langle x, \Theta x\rangle \, d\mu
+           \;+\; \widetilde{D}, \]
+
+        <p>where \(\Pi\) is the set of couplings and \(\widetilde{D}\) is the sharp additive constant
+        — the largest number making this true for all marginals. The datum is called
+        <strong>geometric</strong> when \(\widetilde{D} = 0\) and standard Gaussians are extremal.
+        That is the trivial constant, and it is the case where the inequality says something clean.</p>
+
+        <p>The first real simplification is that we may restrict to Gaussian marginals. Courtade and
+        Wang prove an unconditional Gaussian-saturation theorem for exactly this deficit: the
+        inequality is hardest in the Gaussian regime. So write \(\mu_i = N(0,\Sigma_i)\) and set</p>
+
+        \[ E(\Sigma) := \sum_i c_i D\big(N(0,\Sigma_i) \Vert \gamma_{E_i}\big), \qquad
+           V(\Sigma) := \tfrac12 \min_{S \in \Pi(\Sigma_1,\ldots,\Sigma_n)} \mathrm{Tr}(\Theta S), \qquad
+           \Phi := E - V. \]
+
+        <p>Here \(E\) is the entropy side, \(V\) the transport side, and \(\Phi\) the deficit. Gaussian
+        saturation says \(\widetilde{D} = \inf_\Sigma \Phi(\Sigma)\), so</p>
+
+        <div class="callout">
+          <span class="label">Geometricity, restated</span>
+          The datum is geometric exactly when \(\inf_\Sigma \Phi(\Sigma) = 0\), attained at
+          \(\Sigma = \mathrm{id}\).
+        </div>
+
+        <p>Note that \(\Phi = E - V\) is a difference of two convex functions, so it is neither convex
+        nor concave. That is the source of every difficulty below.</p>
+
+        <h2>The characterization</h2>
+
+        <div class="callout">
+          <span class="label">Theorem</span>
+          The datum \((c,Q)\) is geometric if and only if
+          <ul>
+            <li><strong>(G1)</strong> \(\Theta \succeq 0\);</li>
+            <li><strong>(G2)</strong> there is a witness \(K \in \Pi(\mathrm{id},\ldots,\mathrm{id})\)
+              — that is, \(K \succeq 0\) with \(K_{ii} = \mathrm{id}_{E_i}\) — satisfying \(\Theta K = 0\);</li>
+            <li><strong>(G3)</strong> for every block-diagonal \(\Lambda = \mathrm{diag}(\Lambda_1,\ldots,\Lambda_n) \preceq \Theta\),
+              \[ \sum_{i=1}^n c_i \log\det\Big( \mathrm{id}_{E_i} - \tfrac{1}{c_i}\Lambda_i \Big) \;\ge\; 0. \tag{$\star$} \]
+            </li>
+          </ul>
+          Under (G1)–(G2), the Gaussian coupling \(N(0,K)\) is optimal for the standard Gaussian marginals.
+        </div>
+
+        <p>Read in order, the three conditions say: the cost is nonnegative; standard Gaussians are
+        extremal; and standard Gaussians are <em>globally</em> optimal, not merely critical. The first
+        two are witness conditions you can check by hand. The third is the real content.</p>
+
+        <h3>Where (G1) comes from</h3>
+
+        <p>This one is nearly immediate. If \(\Theta \succeq 0\) then \(\mathrm{Tr}(\Theta S) \ge 0\) for
+        every coupling \(S \succeq 0\), so \(V \ge 0\). Since \(E(\mathrm{id}) = 0\) — a standard Gaussian
+        has zero relative entropy to itself — we get \(\Phi(\mathrm{id}) = -V(\mathrm{id}) \le 0\), and
+        hence \(\widetilde{D} \le 0\). Geometricity is then the one-sided statement
+        \(\inf_\Sigma \Phi \ge 0\).</p>
+
+        <p>If instead \(\Theta \not\succeq 0\), the cost is indefinite, \(\widetilde{D}\) can be strictly
+        positive, and the problem leaves this setting altogether. So (G1) is the admissibility condition.</p>
+
+        <h3>Where (G2) comes from</h3>
+
+        <p>We need \(\Phi(\mathrm{id}) = 0\), and we just observed \(E(\mathrm{id}) = 0\). So we need
+        \(V(\mathrm{id}) = 0\): the cheapest coupling of standard Gaussians must have zero cost. Given
+        (G1), for \(S \succeq 0\),</p>
+
+        \[ \mathrm{Tr}(\Theta S) \;=\; \mathrm{Tr}\big(\Theta^{1/2} S \,\Theta^{1/2}\big) \;=\;
+           \big\Vert \Theta^{1/2} S^{1/2} \big\Vert_{HS}^2 , \]
+
+        <p>so \(\mathrm{Tr}(\Theta S) = 0\) if and only if \(\Theta S = 0\). Therefore
+        \(V(\mathrm{id}) = 0\) is precisely the existence of a coupling \(K\) of the standard Gaussians
+        — \(K \succeq 0\), \(K_{ii} = \mathrm{id}\) — that is annihilated by \(\Theta\). That is (G2),
+        and the witness \(K\) is not just a certificate but the optimal coupling itself.</p>
+
+        <p>Two immediate consequences. First, (G2) forces \(\Theta\) to be <em>singular</em>: it has
+        \(K\) in its kernel. Geometric data live on the boundary of the PSD cone, never in its interior.
+        Second, (G1) and (G2) together only pin down the behaviour <em>at</em> \(\Sigma = \mathrm{id}\).
+        They say the origin is a critical point. They say nothing about whether it is a global minimum —
+        and, as we will see, they genuinely do not imply it.</p>
+
+        <h2>Deriving (G3)</h2>
+
+        <p>Condition (G3) is the global-validity half, and it appears only after the transport value
+        \(V\) has been dualized. The derivation is four steps: reduce to Gaussians, reduce couplings to
+        covariances, dualize the resulting semidefinite program, then minimize in closed form.</p>
+
+        <h3>Step 1: couplings reduce to covariances</h3>
+
+        <p>For \(X \sim N(0,S)\) we have
+        \(\mathbb{E}\langle X, \Theta X\rangle = \mathbb{E}\,\mathrm{Tr}(\Theta X X^\top) = \mathrm{Tr}(\Theta S)\),
+        and the \(i\)-th diagonal block of \(S\) is the marginal covariance. Conversely any \(S \succeq 0\)
+        with the right diagonal blocks is the covariance of a Gaussian coupling. So with
+        \(\Pi(\Sigma_1,\ldots,\Sigma_n) := \{ S \succeq 0 : \pi_i S \pi_i^* = \Sigma_i \}\), the transport
+        value is a semidefinite program:</p>
+
+        \[ V(\Sigma) = \tfrac12 \min\big\{ \mathrm{Tr}(\Theta S) : S \in \Pi(\Sigma_1,\ldots,\Sigma_n) \big\}. \]
+
+        <p>The minimum is attained: \(\Pi(\Sigma)\) is closed, and \(0 \preceq S\) forces
+        \(\Vert S \Vert \le \mathrm{Tr}\,S = \sum_i \mathrm{Tr}\,\Sigma_i\), so it is compact.</p>
+
+        <h3>Step 2: dualize</h3>
+
+        <p>Attach a symmetric multiplier \(\Lambda_i\) to each block constraint
+        \(\pi_i S \pi_i^* = \Sigma_i\) and assemble \(\Lambda := \mathrm{diag}(\Lambda_1,\ldots,\Lambda_n)\).
+        Since \(\sum_i \mathrm{Tr}(\Lambda_i \pi_i S \pi_i^*) = \mathrm{Tr}(\Lambda S)\), the Lagrangian
+        collapses to</p>
+
+        \[ L(S,\Lambda) \;=\; \mathrm{Tr}(\Theta S) - \sum_i \mathrm{Tr}\big(\Lambda_i(\pi_i S \pi_i^* - \Sigma_i)\big)
+           \;=\; \mathrm{Tr}\big((\Theta - \Lambda)S\big) + \langle \Lambda, \Sigma\rangle , \]
+
+        <p>and \(\inf_{S \succeq 0} \mathrm{Tr}((\Theta-\Lambda)S)\) is \(0\) when \(\Theta - \Lambda \succeq 0\)
+        and \(-\infty\) otherwise. Weak duality is then a single line: whenever \(S \succeq 0\) and
+        \(\Lambda \preceq \Theta\),</p>
+
+        \[ \mathrm{Tr}(\Theta S) - \langle \Lambda, \Sigma \rangle = \mathrm{Tr}\big((\Theta - \Lambda)S\big) \ge 0 . \]
+
+        <p>For strong duality, the independent coupling \(S_0 = \mathrm{diag}(\Sigma_1,\ldots,\Sigma_n) \succ 0\)
+        is strictly primal-feasible, so Slater's condition closes the gap. Writing
+        \(\mathcal{F} := \{ \Lambda \text{ block-diagonal}, \Lambda \preceq \Theta \}\),</p>
+
+        \[ V(\Sigma) \;=\; \tfrac12 \max_{\Lambda \in \mathcal{F}} \langle \Lambda, \Sigma \rangle . \]
+
+        <p>This is the step that turns (G3) into an <em>operator</em> condition on \(\Theta\) rather than
+        an unmanageable family of scalar tests.</p>
+
+        <h3>Step 3: exchange the infima</h3>
+
+        <p>Because \(V\) is now a maximum, \(-V\) is a minimum, and the deficit becomes a joint infimum:</p>
+
+        \[ \Phi(\Sigma) = E(\Sigma) - \tfrac12 \max_{\Lambda \in \mathcal{F}} \langle \Lambda, \Sigma\rangle
+           = \inf_{\Lambda \in \mathcal{F}} \Big[ E(\Sigma) - \tfrac12 \langle \Lambda, \Sigma \rangle \Big] , \]
+
+        <p>so the two infima may be exchanged freely:</p>
+
+        \[ \inf_\Sigma \Phi \;=\; \inf_{\Lambda \in \mathcal{F}} g(\Lambda), \qquad
+           g(\Lambda) := \inf_\Sigma \Big[ E(\Sigma) - \tfrac12\langle \Lambda, \Sigma\rangle \Big]. \tag{1} \]
+
+        <p>I will call (1) <strong>the flip</strong>. It is the hinge of the whole theory, and it gets used
+        in both directions.</p>
+
+        <h3>Step 4: minimize in closed form</h3>
+
+        <p>Since \(\langle \Lambda, \Sigma\rangle = \sum_i \mathrm{Tr}(\Lambda_i \Sigma_i)\) sees only the
+        diagonal blocks, \(g\) separates over \(i\). Using
+        \(D(N(0,\Sigma_i)\Vert \gamma) = \tfrac12(\mathrm{Tr}\,\Sigma_i - d_i - \log\det\Sigma_i)\), the
+        \(i\)-th term is</p>
+
+        \[ \inf_{\Sigma_i \succ 0} \frac{c_i}{2}\Big[ \mathrm{Tr}(\Sigma_i T_i) - \log\det\Sigma_i - d_i \Big],
+           \qquad T_i := \mathrm{id}_{E_i} - \tfrac{1}{c_i}\Lambda_i . \]
+
+        <p>Two cases, and both are instructive:</p>
+
+        <ul>
+          <li>If \(T_i\) has an eigenvalue \(\le 0\), with unit eigenvector \(v\), run
+            \(\Sigma_i = \mathrm{id} + t vv^*\). The trace term stays bounded while
+            \(\log\det\Sigma_i = \log(1+t) \to \infty\), so the block infimum is \(-\infty\).</li>
+          <li>If \(T_i \succ 0\), the integrand is strictly convex with gradient
+            \(\tfrac{c_i}{2}(T_i - \Sigma_i^{-1})\), vanishing uniquely at \(\Sigma_i = T_i^{-1}\). There
+            \(\mathrm{Tr}(\Sigma_i T_i) = d_i\) cancels the constant, leaving
+            \(\tfrac{c_i}{2}\log\det T_i\).</li>
+        </ul>
+
+        <p>Summing over \(i\) gives the clean formula</p>
+
+        \[ g(\Lambda) \;=\; \frac12 \sum_{i=1}^n c_i \log\det\Big(\mathrm{id}_{E_i} - \tfrac{1}{c_i}\Lambda_i\Big), \]
+
+        <p>and combining with the flip (1), geometricity \(\inf_\Sigma \Phi \ge 0\) holds if and only if
+        \((\star)\) holds for every block-diagonal \(\Lambda \preceq \Theta\). That is (G3).</p>
+
+        <h2>Why (G3) is the hard one</h2>
+
+        <p>Look at what \((\star)\) actually asks. Since \(\log\det\) is concave and
+        \(\Lambda_i \mapsto T_i\) is affine, \(g\) is <strong>concave</strong> on the convex set
+        \(\mathcal{F}\). Minimizing a concave function over a convex set is governed entirely by the
+        <em>boundary</em> — never by an interior stationary point. And as any \(T_i\) approaches the
+        boundary of the positive cone, \(g \to -\infty\).</p>
+
+        <p>So a priori the infimum may be \(-\infty\): a non-geometric datum can violate \((\star)\) by an
+        <em>unbounded</em> margin. This is not a hypothetical.</p>
+
+        <div class="callout">
+          <span class="label">(G1) and (G2) do not imply (G3)</span>
+          Take \(n=3\), \(d=1\), and
+          \[ \Theta = \tfrac14 ww^\top, \quad w = (2,-1,-1), \quad c = \big(1,\tfrac14,\tfrac14\big),
+             \quad K = \mathbf{1}\mathbf{1}^\top . \]
+          Since \(w^\top \mathbf{1} = 0\), \(\Theta\) is rank one and PSD, and \(\Theta K = 0\) — so
+          (G1) and (G2) both hold. But along the feasible boundary family
+          \(\Lambda(m) = \mathrm{diag}\big(\tfrac{2m}{1+2m}, -m, -m\big)\), the value of \((\star)\) is
+          \[ \log\frac{\sqrt{1+4m}}{1+2m} \;\xrightarrow[\;m\to\infty\;]{}\; -\infty . \]
+          So \(\widetilde{D} = -\infty\): no finite constant makes the inequality hold.
+        </div>
+
+        <p>This is why the two easy conditions are not the answer. Criticality at \(\Sigma = \mathrm{id}\)
+        is cheap; global validity is not.</p>
+
+        <p>The practical consequence is that one should almost never attack the boundary minimization
+        directly. Instead, use the flip (1) in reverse: exhibit \(\Phi \ge 0\) on the primal side, and the
+        dual statement \((\star)\) follows for free. The data for which this is tractable are exactly the
+        ones whose structure pins down the minimizer — and the cleanest such case is the barycenter.</p>
+
+        <h2>The Wasserstein barycenter is geometric</h2>
+
+        <p>Fix weights \(\lambda_i \gt 0\) with \(\sum_i \lambda_i = 1\), and take</p>
+
+        \[ c_i = \lambda_i(1-\lambda_i), \qquad \Theta = M \otimes \mathrm{id}_d, \qquad
+           M = \mathrm{diag}(\lambda) - \lambda\lambda^\top, \tag{2} \]
+
+        <p>so that \(\langle x, \Theta x\rangle = \sum_{i \lt j} \lambda_i\lambda_j |x_i - x_j|^2\), the
+        barycenter cost. Everything tensors with \(\mathrm{id}_d\), so take \(d=1\). Write
+        \(g(\sigma) := \sigma^2 - 2\log\sigma - 1\) and \(\varphi(t) := t - \log t - 1\); both are
+        \(\ge 0\), vanishing only at argument \(1\), and \(D(N(0,\sigma^2)\Vert\gamma) = \tfrac12 g(\sigma)\).</p>
+
+        <h3>(G1) is a variance</h3>
+
+        <p>For any \(x \in \mathbb{R}^n\),</p>
+
+        \[ x^\top M x \;=\; \sum_i \lambda_i x_i^2 - \Big(\sum_i \lambda_i x_i\Big)^{\!2} \;=\; \mathrm{Var}_\lambda(x) \;\ge\; 0 . \]
+
+        <p>So \(M \succeq 0\) and \(\Theta \succeq 0\). Moreover
+        \(M\mathbf{1} = \lambda - \lambda(\lambda^\top \mathbf{1}) = 0\), so \(M\) has rank \(n-1\) with
+        \(\ker M = \mathrm{span}(\mathbf{1})\). That kernel is about to do all the work.</p>
+
+        <h3>(G2) forces the comonotone coupling</h3>
+
+        <p>A witness needs \(K \succeq 0\), \(K_{ii} = 1\), and \(MK = 0\). The last condition forces every
+        column of \(K\) into \(\ker M = \mathrm{span}(\mathbf{1})\). A symmetric PSD matrix all of whose
+        columns are parallel to \(\mathbf{1}\) must be \(K = t\mathbf{1}\mathbf{1}^\top\), and
+        \(K_{ii} = 1\) gives \(t = 1\). So the witness is unique:</p>
+
+        \[ K = \mathbf{1}\mathbf{1}^\top, \]
+
+        <p>which is the covariance of the <strong>comonotone coupling</strong> \((X, X, \ldots, X)\) with
+        \(X \sim N(0,1)\) — every marginal is the same random variable. By the Theorem, this is the optimal
+        coupling of the standard Gaussians.</p>
+
+        <h3>(G3) by a pairwise certificate</h3>
+
+        <p>Now the flip. Rather than face the concave minimization, exhibit \(\Phi \ge 0\) directly. Two
+        structural facts collapse it into nonnegative pairs.</p>
+
+        <p><strong>The energy splits over pairs.</strong> Because \(\sum_j \lambda_j = 1\), the weights
+        satisfy \(c_i = \lambda_i(1-\lambda_i) = \sum_{j \ne i}\lambda_i\lambda_j\), so</p>
+
+        \[ E(\sigma) = \frac12 \sum_i c_i\, g(\sigma_i) = \frac12 \sum_{i \lt j} \lambda_i\lambda_j\big( g(\sigma_i) + g(\sigma_j)\big) . \]
+
+        <p><strong>The transport value is computed by one Gaussian.</strong> For \(X \sim N(0,S)\) with
+        \(\mathrm{Var}(X_i) = \sigma_i^2\), at a fixed coupling</p>
+
+        \[ \tfrac12 \mathrm{Tr}(\Theta S) = \tfrac12\, \mathbb{E} \sum_{i \lt j}\lambda_i\lambda_j (X_i - X_j)^2
+           = \frac12\Big[ \sum_i \lambda_i \sigma_i^2 - \mathrm{Var}\Big(\sum_i \lambda_i X_i\Big)\Big] . \]
+
+        <p>Minimizing over couplings therefore <em>maximizes</em> \(\mathrm{Var}(\sum_i \lambda_i X_i)\).
+        That variance is at most \((\sum_i \lambda_i \sigma_i)^2\) by Cauchy–Schwarz, and equality holds
+        exactly when the \(X_i\) are all positive multiples of a single random variable — the comonotone
+        coupling \(X_i = \sigma_i Z\), \(Z \sim N(0,1)\). Hence</p>
+
+        \[ V(\sigma) = \tfrac12 \mathrm{Var}_\lambda(\sigma) = \frac12 \sum_{i \lt j}\lambda_i\lambda_j(\sigma_i - \sigma_j)^2 . \]
+
+        <p>This is the stochastic step: the entire semidefinite program is solved by writing every marginal
+        as a scaling of one Gaussian.</p>
+
+        <p><strong>Subtract.</strong> Both \(E\) and \(V\) are \(\tfrac12\sum_{i \lt j}\lambda_i\lambda_j(\cdots)\)
+        with the <em>same</em> nonnegative weights, so it is enough to look at a single pair, and the bracket
+        telescopes:</p>
+
+        \[ g(\sigma_i) + g(\sigma_j) - (\sigma_i - \sigma_j)^2
+           = 2\big( \sigma_i\sigma_j - \log(\sigma_i\sigma_j) - 1 \big) = 2\varphi(\sigma_i\sigma_j) . \]
+
+        <p>Both squares cancel and only the product survives. Therefore</p>
+
+        <div class="callout">
+          <span class="label">The certificate</span>
+          \[ \Phi(\sigma) \;=\; \sum_{i \lt j} \lambda_i \lambda_j\, \varphi(\sigma_i\sigma_j) \;\ge\; 0, \]
+          with equality exactly at \(\sigma = \mathbf{1}\). So \((\star)\) holds and the barycenter datum
+          is geometric.
+        </div>
+
+        <p>Notice there is no \(-\infty\) mode here, and the reason is visible in the formula: in
+        \(\varphi(t) = t - \log t - 1\) the runaway \(-\log t\) is always outrun by the linear \(+t\), so no
+        marginal escaping to \(0\) or \(\infty\) can drive \(\Phi\) negative. Compare the counterexample
+        above, where the off-diagonal sign was positive and the comonotone witness could not telescope
+        the deficit into pairs.</p>
+
+        <h3>Where the log-det minimization actually lands</h3>
+
+        <p>The flip also locates the boundary minimizer of the concave problem, and the answer is
+        satisfying: it is \(\Lambda = 0\). There every \(T_i = \mathrm{id}\), so the dual value is
+        \(\tfrac12\sum_i c_i \log\det\mathrm{id} = 0\). This \(\Lambda = 0\) sits on
+        \(\partial\mathcal{F}\) — consistent with the boundary principle — precisely because \(\Theta\) is
+        singular: \(\Theta\mathbf{1} = 0\) makes the constraint \(\Lambda \preceq \Theta\) tight along
+        \(\mathbf{1}\), so the minimizer is forced to the boundary rather than escaping to \(-\infty\).</p>
+
+        <p>And that same degeneracy \(\Theta\mathbf{1} = 0\) is exactly what supplied the (G2) witness
+        \(K = \mathbf{1}\mathbf{1}^\top\), whose columns span \(\ker M\). The fact that pins \((\star)\) at
+        zero and the fact that furnishes the witness are one and the same.</p>
+
+        <h2>Why the barycenter was tractable</h2>
+
+        <p>The pairwise certificate is clean but looks like a lucky algebraic accident. It is not. There
+        is a change of variables that explains it.</p>
+
+        <p>Put \(u_i := c_i - \Lambda_i\) and \(N := \mathrm{diag}(c) - \Theta\), and let
+        \(\mathcal{S} := \{ u \in \mathbb{R}^n_{\gt 0} : \mathrm{diag}(u) \succeq N \}\). Then
+        \(\Lambda \mapsto \mathrm{diag}(u)\) is a bijection from \(\mathcal{F}\) onto \(\mathcal{S}\),
+        carrying \(\Lambda = 0\) to \(u = c\), and</p>
+
+        \[ g(\Lambda) = \tfrac12\big(\ell(u) - \ell(c)\big), \qquad \ell(u) = \sum_i c_i \log u_i . \]
+
+        <p>Now recall that the positive-definite matrices form a unique-geodesic metric space under
+        \(A \#_t B = A^{1/2}(A^{-1/2}BA^{-1/2})^t A^{1/2}\), and that the diagonal slice is totally
+        geodesic with \(x = \log u\) straightening geodesics into segments. In that chart \(\ell\) is
+        <strong>geodesically affine</strong>, and one can show \(\mathcal{S}\) is geodesically
+        <strong>convex</strong>. So \((\star)\) is a linear functional minimized over a convex region — a
+        geodesically linear program. The concavity that made (G3) frightening was an artifact of the
+        \(\Lambda\)-coordinates.</p>
+
+        <p>In such a program first-order optimality implies global optimality, and \(u = c\) is first-order
+        optimal. That gives a second, certificate-free proof that the barycenter is geometric.</p>
+
+        <p>There is a pleasant surprise hiding here too. In the chart \(x = \log u\), with
+        \(y_i := x_i - \log \lambda_i^2\), the feasible region is</p>
+
+        \[ \mathcal{T}_n = \Big\{ y \in \mathbb{R}^n : \sum_i \frac{1}{1+e^{y_i}} \le 1 \Big\}, \]
+
+        <p>the <em>same body</em> for every choice of weights — the weights enter only through a
+        translation. For \(n=2\) this is a half-space, so the content begins at \(n \ge 3\), where the
+        boundary is genuinely curved and the summands are not individually convex.</p>
+
+        <h2>Beyond the barycenter</h2>
+
+        <p>Two things generalize. First, geodesic convexity of \(\mathcal{S}\) follows from a clean
+        operator criterion — roughly, that \(\mathrm{diag}(u) \succeq N\) should force
+        \(\mathrm{diag}(u) \succeq -N\) — which can be checked combinatorially. Build the graph on
+        \(\{1,\ldots,n\}\) with an edge wherever \(N_{ij} \ne 0\). If the signed graph is
+        <strong>balanced</strong>, or if the graph is <strong>bipartite</strong>, the criterion holds; both
+        are decidable in \(O(n^2)\) by breadth-first two-colouring, and the test localizes to
+        2-connected blocks. For the barycenter, \(N_{ij} = \lambda_i\lambda_j \gt 0\) off the diagonal, so
+        \(N\) is entrywise nonnegative, hence balanced — a two-line proof of the convexity that otherwise
+        took an epigraph induction.</p>
+
+        <p>Second, non-geometric data are not all alike. Tracking the gap
+        \(D_g := -\widetilde{D} \in [0,\infty]\), every datum satisfying (G1) is geometric
+        (\(D_g = 0\)), finite-gap (\(0 \lt D_g \lt \infty\)), or infinite-gap (\(D_g = \infty\)). A single
+        scalar sweeps all three. Take \(n=2\), \(d=1\), \(c=(1,1)\) and</p>
+
+        \[ \Theta_q = \begin{pmatrix} 1 & -q \\ -q & 1 \end{pmatrix}, \qquad 0 \lt q \le 1 . \]
+
+        <p>Writing \(p := \sigma_1\sigma_2\), the quadratic terms cancel and
+        \(\Phi = qp - \log p - 1\), minimized at \(p = 1/q\), so
+        \(\widetilde{D} = \log q\). At \(q=1\) this is the symmetrized Talagrand cost
+        \(|x_1-x_2|^2\): \(\Theta_1\) is singular, (G2) holds with witness
+        \(\mathbf{1}\mathbf{1}^\top\), and the datum is geometric. For \(0 \lt q \lt 1\), \(\Theta_q \succ 0\)
+        is nonsingular, so no witness exists, (G2) fails, and the gap is finite. As \(q \to 0^+\) it
+        diverges. For \(q \gt 1\), (G1) fails outright.</p>
+
+        <p>So geometricity is a knife-edge: it happens exactly where \(\Theta\) touches the boundary of the
+        PSD cone. Push inward and you overshoot into a finite gap; push outward and the cost goes
+        indefinite.</p>
+
+        <h2>What I want next</h2>
+
+        <p>The barycenter proof above has a shape worth taking seriously. The semidefinite program was not
+        solved by semidefinite programming — it was solved by writing \(X_i = \sigma_i Z\) for a single
+        Gaussian \(Z\) and reading off a variance. The dual, the \(\log\det\), and the boundary analysis
+        all became unnecessary the moment the right coupling was guessed.</p>
+
+        <p>The open question I am working on is how far that goes: identify the geometric instances of the
+        Courtade–Wang family in general, and give <em>stochastic</em> proofs of optimality rather than
+        convex-analytic ones. The barycenter admits a stochastic-plus-induction argument, and it is a
+        plausible prototype for a broader class. The combinatorial criteria above are suggestive here —
+        balance and bipartiteness are statements about sign patterns in a graph, and sign patterns are
+        exactly what decide whether a comonotone-type coupling can telescope a deficit into nonnegative
+        pieces.</p>
+
+        <p>If that correspondence is real, the right statement is probably not about \(\log\det\) at all.</p>
+
+        <h2>References</h2>
+
+        <ul>
+          <li>T. A. Courtade and E. Wang. <em>Generalized Blaschke–Santaló-type inequalities, without
+            symmetry restrictions.</em> <a href="https://arxiv.org/abs/2509.08998">arXiv:2509.08998</a> (2025).</li>
+          <li>S. Nakamura and H. Tsuji. <em>A generalized Legendre duality relation and Gaussian
+            saturation.</em> Invent. Math. (2025). <a href="https://arxiv.org/abs/2409.13611">arXiv:2409.13611</a>.</li>
+          <li>A. V. Kolesnikov and E. M. Werner. <em>Blaschke–Santaló inequality for many functions and
+            geodesic barycenters of measures.</em> Adv. Math. 396 (2022), 108110.</li>
+          <li>T. A. Courtade. <em>Entropy inequalities in Euclidean spaces.</em> Lecture notes, UC Berkeley.</li>
+          <li>R. Bhatia. <em>Positive Definite Matrices.</em> Princeton University Press, 2007.</li>
+        </ul>
+
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p>© 2026 Rex Ouyang · built with plain HTML/CSS, hosted on GitHub Pages</p>
+      <div class="socials">
+        <a href="https://github.com/Shrekles">github</a>
+        <a href="https://www.linkedin.com/in/rex-ouyang/">linkedin</a>
+        <a href="mailto:rexhouyang@berkeley.edu">email</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

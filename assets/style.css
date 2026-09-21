@@ -614,6 +614,132 @@ section { padding: 72px 0; }
   .term-notes.view-grid { grid-template-columns: 1fr; }
 }
 
+/* ---------- blog: index list ---------- */
+.post-list { display: flex; flex-direction: column; }
+
+.post-row {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  padding: 17px 18px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.post-row:hover { background: var(--surface); border-color: var(--border); }
+
+.post-date {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--accent);
+  min-width: 96px;
+  flex-shrink: 0;
+}
+
+.post-body { display: flex; flex-direction: column; gap: 4px; }
+.post-title { font-weight: 550; font-size: 15.5px; letter-spacing: -0.01em; }
+.post-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; }
+
+.post-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 3px; }
+
+@media (max-width: 640px) {
+  .post-row { flex-direction: column; gap: 6px; }
+}
+
+/* ---------- blog: article body ---------- */
+.prose { max-width: 720px; }
+
+.prose > * + * { margin-top: 18px; }
+
+.prose h2 {
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 52px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.prose h3 {
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  margin-top: 34px;
+  color: var(--text);
+}
+
+.prose p, .prose li { color: var(--text-dim); font-size: 15.5px; line-height: 1.75; }
+.prose strong { color: var(--text); font-weight: 600; }
+.prose ul, .prose ol { padding-left: 22px; }
+.prose li + li { margin-top: 7px; }
+
+.prose a { color: var(--accent); text-decoration: none; }
+.prose a:hover { text-decoration: underline; }
+
+.prose code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  padding: 2px 6px;
+  border-radius: 5px;
+}
+
+/* a named result, set off from the running text */
+.prose .callout {
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--accent);
+  background: var(--surface);
+  border-radius: 0 10px 10px 0;
+  padding: 16px 20px;
+}
+
+.prose .callout .label {
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 7px;
+}
+
+.prose blockquote {
+  border-left: 2px solid var(--border);
+  padding-left: 18px;
+  color: var(--text-faint);
+  font-size: 14.5px;
+}
+
+.post-meta {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-faint);
+  margin-top: 12px;
+}
+
+.post-back {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-dim);
+  text-decoration: none;
+}
+.post-back:hover { color: var(--accent); }
+
+/* KaTeX: let long display equations scroll instead of overflowing the page */
+.prose .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 0 8px;
+}
+.prose .katex { font-size: 1.02em; }
+
+@media (max-width: 640px) {
+  .prose .katex { font-size: 0.94em; }
+}
+
 /* ---------- resume ---------- */
 .resume-actions {
   display: flex;

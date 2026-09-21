@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog — Rex Ouyang</title>
+  <meta name="description" content="Notes and write-ups from Rex Ouyang on probability, information theory, optimal transport, and whatever else seems worth sharing." />
+  <link rel="canonical" href="https://shrekles.github.io/blog.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Rex Ouyang" />
+  <meta property="og:title" content="Blog — Rex Ouyang" />
+  <meta property="og:description" content="Write-ups on probability, information theory, and optimal transport." />
+  <meta property="og:url" content="https://shrekles.github.io/blog.html" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <script src="assets/main.js" defer></script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>∇</text></svg>" />
+</head>
+<body>
+  <canvas class="bg-voronoi" id="bg-voronoi" aria-hidden="true"></canvas>
+  <div class="bg-glow"></div>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="logo" href="index.html">rex<span class="accent">.</span>dev</a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="projects.html"><span class="nav-full">Selected </span>Projects</a>
+        <a href="notes.html"><span class="nav-full">Course </span>Notes</a>
+        <a href="blog.html" class="active">Blog</a>
+        <a href="resume.html">Resume</a>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀</button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="container" style="padding-top: 80px;">
+      <div class="section-header reveal">
+        <div class="eyebrow">// blog</div>
+        <h1>Writing</h1>
+        <p>Research I'm working on, things I've read and want to think through properly,
+           and the occasional problem that turned out to be prettier than expected.</p>
+      </div>
+
+      <!-- ============ POSTS ============
+           Newest first. One <a class="post-row"> per post; the post itself lives
+           in posts/ as a standalone page (note the ../ asset paths in there). -->
+      <div class="post-list reveal">
+        <a class="post-row" href="posts/geometricity-of-transport-entropy-inequalities.html">
+          <span class="post-date">2026-09-21</span>
+          <span class="post-body">
+            <span class="post-title">Which transport–entropy inequalities are geometric?</span>
+            <span class="post-desc">Courtade and Wang's generalized Blaschke–Santaló
+              inequalities come with a sharp additive constant. For some data that constant
+              is trivial and Gaussians are extremal — those are the geometric instances.
+              Here is a clean characterization by three conditions, where each comes from,
+              and why the Wasserstein barycenter satisfies all three.</span>
+            <span class="post-tags">
+              <span class="tag">optimal transport</span><span class="tag">information theory</span><span class="tag">convex geometry</span>
+            </span>
+          </span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p>© 2026 Rex Ouyang · built with plain HTML/CSS, hosted on GitHub Pages</p>
+      <div class="socials">
+        <a href="https://github.com/Shrekles">github</a>
+        <a href="https://www.linkedin.com/in/rex-ouyang/">linkedin</a>
+        <a href="mailto:rexhouyang@berkeley.edu">email</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
