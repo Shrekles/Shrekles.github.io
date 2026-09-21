@@ -528,6 +528,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* ============ scroll reveal ============ */
+  /* Trigger on a margin, not a ratio. A ratio threshold is unreachable once an
+     element is taller than 1/threshold viewports — a long blog post is ~14
+     screens, so `threshold: 0.1` could never fire and the article stayed at
+     opacity 0 forever. Shrinking the root's bottom edge instead asks "is it 8%
+     of a screen into view", which behaves the same for cards and still fires
+     for something arbitrarily tall. */
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
@@ -537,7 +543,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     },
-    { threshold: 0.1 }
+    { threshold: 0, rootMargin: "0px 0px -8% 0px" }
   );
   document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 
