@@ -291,21 +291,127 @@ function drawIto({ ctx, w, h }, { steps, paths }, prog) {
   });
 }
 
+function simulateNbhd() {
+  const count = 20;
+  /* Strictly decreasing radii, with enough jitter that a resample looks new.
+     Decay is deliberately slow: a fast one crams the tail into a few pixels
+     and the whole point of the picture is that you can see the tail. */
+  const decay = 0.855 + Math.random() * 0.04;
+  const turn = 2.0 + Math.random() * 0.9;          /* radians per step */
+  const phase = Math.random() * Math.PI * 2;
+  const pts = [];
+  let r = 1;
+  for (let k = 0; k < count; k++) {
+    const th = phase + k * turn;
+    pts.push({ r, x: r * Math.cos(th), y: r * Math.sin(th) });
+    r *= decay * (0.94 + Math.random() * 0.12);    /* worst case 0.895*1.06 < 1 */
+  }
+  return { pts };
+}
+
+function drawNbhd({ ctx, w, h }, { pts }, prog) {
+  const pal = thumbPalette();
+  const cx = w / 2, cy = h / 2;
+  const R = Math.min(w, h) * 0.42;
+  const px = (p) => cx + p.x * R;
+  const py = (p) => cy + p.y * R;
+  const n = pts.length;
+  const f = prog.seq * (n - 1);
+  const shown = Math.min(Math.floor(f), n - 1);
+
+  /* The open ball B(x, eps). It starts wide enough to hold the whole sequence
+     and tightens, so the picture reads as "for every eps, a tail lies inside". */
+  const eps = R * (1.10 - 0.58 * prog.eps);
+  ctx.beginPath();
+  ctx.arc(cx, cy, eps, 0, Math.PI * 2);
+  ctx.fillStyle = mixRGB(pal.a, pal.b, 0.5, 0.09);
+  ctx.fill();
+  ctx.setLineDash([3, 3]);
+  ctx.lineWidth = 1.2;
+  ctx.strokeStyle = mixRGB(pal.b, pal.b, 0, 0.75);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  /* the sequence, revealed term by term */
+  ctx.strokeStyle = mixRGB(pal.a, pal.b, 0.5, 0.22);
+  ctx.lineWidth = 1;
+  strokeUpTo(ctx, (i) => [px(pts[i]), py(pts[i])], n - 1, f);
+
+  /* terms inside the ball light up; the finitely many outside stay dim */
+  for (let k = 0; k <= shown; k++) {
+    const q = pts[k];
+    const inside = q.r * R <= eps;
+    const t = k / (n - 1);
+    ctx.beginPath();
+    ctx.arc(px(q), py(q), inside ? 2.6 : 1.8, 0, Math.PI * 2);
+    ctx.fillStyle = mixRGB(pal.a, pal.b, t, inside ? 0.95 : 0.32);
+    ctx.fill();
+  }
+
+  /* the limit */
+  ctx.beginPath();
+  ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+  ctx.fillStyle = mixRGB(pal.a, pal.b, 0.5, 1);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(cx, cy, 5.5, 0, Math.PI * 2);
+  ctx.strokeStyle = mixRGB(pal.a, pal.b, 0.5, 0.42);
+  ctx.lineWidth = 1;
+  ctx.stroke();
+}
+
 /* Each panel keeps its sample *and* how far through the animation it is, so a
    theme flip or a resize re-renders the current frame rather than snapping to
    the finished drawing. */
 const thumbState = new WeakMap();
 
 const ITO_MS = 3200, CLT_WALK_MS = 2600, CLT_BELL_MS = 1100;
-const zeroProg = (viz) => (viz === "ito" ? { paths: 0 } : { walks: 0, bell: 0 });
-const fullProg = (viz) => (viz === "ito" ? { paths: 1 } : { walks: 1, bell: 1 });
+const NBHD_SEQ_MS = 2400, NBHD_EPS_MS = 1700;
+
+/* One entry per data-viz value. Adding a fourth visualisation means adding a
+   key here and nothing else — the state, render, animation and resample paths
+   all read from this table rather than branching on the name. */
+const VIZ = {
+  ito: {
+    simulate: simulateIto,
+    draw: drawIto,
+    zero: () => ({ paths: 0 }),
+    full: () => ({ paths: 1 }),
+    duration: ITO_MS,
+    step: (p, ms) => { p.paths = easeInOutCubic(clamp01(ms / ITO_MS)); },
+  },
+  clt: {
+    simulate: simulateWalks,
+    draw: drawCLT,
+    zero: () => ({ walks: 0, bell: 0 }),
+    full: () => ({ walks: 1, bell: 1 }),
+    duration: CLT_WALK_MS + CLT_BELL_MS,
+    /* walks sweep out first, then the limit law appears */
+    step: (p, ms) => {
+      p.walks = easeInOutCubic(clamp01(ms / CLT_WALK_MS));
+      p.bell = easeOutCubic(clamp01((ms - CLT_WALK_MS) / CLT_BELL_MS));
+    },
+  },
+  nbhd: {
+    simulate: simulateNbhd,
+    draw: drawNbhd,
+    zero: () => ({ seq: 0, eps: 0 }),
+    full: () => ({ seq: 1, eps: 1 }),
+    duration: NBHD_SEQ_MS + NBHD_EPS_MS,
+    /* the sequence converges first, then the neighbourhood closes in on it */
+    step: (p, ms) => {
+      p.seq = easeInOutCubic(clamp01(ms / NBHD_SEQ_MS));
+      p.eps = easeInOutCubic(clamp01((ms - NBHD_SEQ_MS) / NBHD_EPS_MS));
+    },
+  },
+};
 
 function thumbStateFor(cv, viz) {
   let st = thumbState.get(cv);
   if (!st) {
     st = {
-      sample: viz === "ito" ? simulateIto() : simulateWalks(),
-      prog: zeroProg(viz),
+      sample: VIZ[viz].simulate(),
+      prog: VIZ[viz].zero(),
       raf: 0,
     };
     thumbState.set(cv, st);
@@ -314,10 +420,11 @@ function thumbStateFor(cv, viz) {
 }
 
 function renderThumb(cv, viz) {
+  if (!VIZ[viz]) return null;          /* unknown data-viz — leave the panel blank */
   const dims = thumbCtx(cv);
   if (!dims) return null;              /* compact view — canvas is display:none */
   const st = thumbStateFor(cv, viz);
-  (viz === "ito" ? drawIto : drawCLT)(dims, st.sample, st.prog);
+  VIZ[viz].draw(dims, st.sample, st.prog);
   return st;
 }
 
@@ -329,12 +436,14 @@ function drawNoteThumbs() {
 }
 
 function animateThumb(cv, viz) {
+  const spec = VIZ[viz];
+  if (!spec) return;
   const st = thumbStateFor(cv, viz);
   if (st.raf) cancelAnimationFrame(st.raf);
   st.raf = 0;
 
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    st.prog = fullProg(viz);
+    st.prog = spec.full();
     renderThumb(cv, viz);
     return;
   }
@@ -347,20 +456,12 @@ function animateThumb(cv, viz) {
     return;
   }
 
-  st.prog = zeroProg(viz);
+  st.prog = spec.zero();
   const start = performance.now();
   const tick = (now) => {
     const ms = now - start;
-    let done;
-    if (viz === "ito") {
-      st.prog.paths = easeInOutCubic(clamp01(ms / ITO_MS));
-      done = ms >= ITO_MS;
-    } else {
-      /* walks sweep out first, then the limit law appears */
-      st.prog.walks = easeInOutCubic(clamp01(ms / CLT_WALK_MS));
-      st.prog.bell = easeOutCubic(clamp01((ms - CLT_WALK_MS) / CLT_BELL_MS));
-      done = ms >= CLT_WALK_MS + CLT_BELL_MS;
-    }
+    spec.step(st.prog, ms);
+    const done = ms >= spec.duration;
     renderThumb(cv, viz);
     st.raf = done ? 0 : requestAnimationFrame(tick);
   };
@@ -381,7 +482,8 @@ function resampleThumbs() {
     const cv = row.querySelector(".note-thumb");
     if (!cv || !cv.clientWidth) return;
     const viz = row.dataset.viz;
-    thumbStateFor(cv, viz).sample = viz === "ito" ? simulateIto() : simulateWalks();
+    if (!VIZ[viz]) return;
+    thumbStateFor(cv, viz).sample = VIZ[viz].simulate();
     animateThumb(cv, viz);
   });
 }
